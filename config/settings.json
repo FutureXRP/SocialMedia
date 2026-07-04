@@ -1,7 +1,7 @@
 {
   "duration_target_default": 120,
   "anthropic_model": "claude-sonnet-4-6",
-  "elevenlabs_voice_id": "SET_ME_ONCE_AND_NEVER_CHANGE",
+  "elevenlabs_voice_id": "s3TPKV1kjDlVtZbl4Ksh",
   "elevenlabs_model_id": "eleven_multilingual_v2",
   "elevenlabs_output_format": "mp3_44100_128",
   "email_delivery": false,
