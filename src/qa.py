@@ -12,6 +12,8 @@ import os
 import re
 from pathlib import Path
 
+from script import extract_json_object
+
 ROOT = Path(__file__).resolve().parent.parent
 QA_PROMPT = ROOT / "prompts" / "qa_reviewer.md"
 
@@ -56,13 +58,13 @@ def words_to_values(text):
     digit form in a source carries ("$82 billion" → 82)."""
     tokens = re.findall(r"[a-z]+|\d+(?:\.\d+)?", text.lower().replace("-", " "))
     values = []
-    cur, active, dec, div = 0.0, False, False, 0.1
+    total, cur, active, dec, div = 0.0, 0.0, False, False, 0.1
 
     def flush():
-        nonlocal cur, active, dec, div
+        nonlocal total, cur, active, dec, div
         if active:
-            values.append(cur)
-        cur, active, dec, div = 0.0, False, False, 0.1
+            values.append(total + cur)
+        total, cur, active, dec, div = 0.0, 0.0, False, False, 0.1
 
     for tok in tokens:
         if re.fullmatch(r"\d+(?:\.\d+)?", tok):
@@ -81,6 +83,11 @@ def words_to_values(text):
             active = True
         elif not dec and tok == "hundred" and active:
             cur *= 100
+        elif not dec and tok == "thousand" and active:
+            total += cur * 1000  # "two thousand nine hundred..." keeps going
+            cur = 0.0
+        elif tok == "and" and active and not dec:
+            continue  # "one hundred and eighty" is one number
         else:
             flush()
     flush()
@@ -244,10 +251,7 @@ def llm_review(script, source_text, canonical, settings):
         system=QA_PROMPT.read_text(),
         messages=[{"role": "user", "content": user_message}],
     )
-    raw = response.content[0].text.strip()
-    if raw.startswith("```"):
-        raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw)
-    return json.loads(raw)
+    return extract_json_object(response.content[0].text)
 
 
 def run_qa(script, source_text, canonical, settings, skip_llm=False):

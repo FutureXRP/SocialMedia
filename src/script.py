@@ -32,12 +32,22 @@ def sanitize_script(script):
     return script
 
 
-def parse_script_json(raw):
-    """The prompt demands bare JSON; strip fences defensively anyway."""
+def extract_json_object(raw):
+    """Parse the first JSON object out of a model response, tolerating
+    markdown fences, leading prose, and trailing commentary — models
+    sometimes append text after the JSON despite the prompt."""
     raw = raw.strip()
     if raw.startswith("```"):
         raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw)
-    return json.loads(raw)
+    start = raw.find("{")
+    if start < 0:
+        raise ValueError("model response contains no JSON object")
+    obj, _end = json.JSONDecoder().raw_decode(raw[start:])
+    return obj
+
+
+def parse_script_json(raw):
+    return extract_json_object(raw)
 
 
 def build_user_message(duration_target, format_key, source_text, canonical,

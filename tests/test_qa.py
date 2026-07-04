@@ -66,6 +66,30 @@ def test_spelled_out_numbers_trace_to_digit_sources():
     assert check_spoken_numbers(script, source, CANONICAL) == []
 
 
+def test_and_and_thousand_forms_trace():
+    # regression: run 2 flagged both of these against a source with the digits
+    source = "The $180 scenario. A required price of $2,951 per XRP."
+    script = copy.deepcopy(FIXTURE)
+    script["spoken_numbers"] = [
+        "one hundred and eighty dollars ($180)",
+        "two thousand nine hundred and fifty-one dollars ($2,951)",
+    ]
+    assert check_spoken_numbers(script, source, CANONICAL) == []
+
+
+def test_llm_response_with_trailing_commentary_parses():
+    # regression: run 2 crashed on "Extra data" when the QA model appended
+    # prose after its JSON verdict
+    from script import extract_json_object
+    raw = ('{"verdict": "pass", "violations": []}\n\n'
+           "Overall this script is well grounded in the source material.")
+    assert extract_json_object(raw) == {"verdict": "pass", "violations": []}
+    fenced = '```json\n{"verdict": "fail", "violations": []}\n```\ntrailing'
+    assert extract_json_object(fenced)["verdict"] == "fail"
+    prose_first = 'Here is my verdict:\n{"verdict": "pass", "violations": []}'
+    assert extract_json_object(prose_first)["verdict"] == "pass"
+
+
 def test_spelled_out_fabricated_number_still_fails():
     script = copy.deepcopy(FIXTURE)
     script["spoken_numbers"] = ["ninety-nine trillion dollars"]
