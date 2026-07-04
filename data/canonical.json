@@ -1,0 +1,15 @@
+{
+  "sqrt_anchor": {
+    "value_usd": 589,
+    "inputs": { "Q_daily_usd": "2000000000", "sigma": "0.005",
+                "slippage_bps": 5, "turnover": "0.0136", "float": "25000000000" },
+    "framing_rule": "Always 'derived anchor from published inputs', never a prediction."
+  },
+  "rlusd_market_cap_usd": "1.26B (Ripple Impact Report 2025)",
+  "xrpl_cumulative_volume_usd": "1.5T (Ripple Impact Report 2025)",
+  "rwa_tokenization_growth": "24.7M to 568M (Ripple Impact Report 2025)",
+  "agora_central_banks": 7,
+  "nostro_parked_estimate": "4T+ (industry estimates; verify before use in scripts)",
+  "site": "xrpvaluation.info",
+  "handle": "@the5blairs"
+}

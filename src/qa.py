@@ -1,0 +1,206 @@
+"""Stage 3 — QA pass: the editorial firewall. It is load-bearing and may
+never be bypassed with a flag; there is no --skip-qa.
+
+Programmatic checks run first (schema, forbidden vocabulary, number
+provenance, quote limits, disclaimer, $589 framing) — the code check is
+suspenders. An independent Anthropic call is the belt. A script renders only
+if both pass; one regeneration retry is allowed, then the run aborts.
+"""
+
+import json
+import os
+import re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+QA_PROMPT = ROOT / "prompts" / "qa_reviewer.md"
+
+DISCLAIMER = "Research, not investment advice."
+
+FORBIDDEN_WORDS = [
+    "moon", "pump", "dump", "ape", "wagmi", "ngmi", "100x", "1000x",
+    "trust me", "guaranteed", "about to explode", "last chance",
+    "financial freedom",
+]
+
+# $589 must never be framed as a certainty. "derived anchor" must be present.
+BAD_589_PATTERNS = [
+    r"will (?:hit|reach|be worth|go to|trade at)[^.]{0,40}589",
+    r"589[^.]{0,40}(?:price target|guaranteed|prediction)",
+    r"(?:target|predict\w*)[^.]{0,40}\$?589",
+]
+
+SCENE_KEYS = {
+    "hook_typewriter", "stat_counter", "declaration", "chart_sqrt",
+    "chart_bar", "chart_line", "quote_card", "list_reveal", "cta_card",
+}
+
+_NUM_NORM = re.compile(r"[,$\s]")
+
+
+def _script_spoken_text(script):
+    parts = [seg.get("voiceover", "") for seg in script.get("segments", [])]
+    parts.append(script.get("cta_voiceover", ""))
+    return " ".join(parts)
+
+
+def _script_all_text(script):
+    parts = [_script_spoken_text(script), script.get("caption_text", ""),
+             script.get("hook", "")]
+    for seg in script.get("segments", []):
+        parts.append(json.dumps(seg.get("display", {})))
+    return " ".join(parts)
+
+
+def validate_schema(script):
+    violations = []
+    for field in ("title", "hook", "segments", "cta_voiceover", "caption_text",
+                  "spoken_numbers"):
+        if field not in script:
+            violations.append({"rule": "6 schema", "detail": f"missing field: {field}"})
+    segments = script.get("segments", [])
+    if not segments:
+        violations.append({"rule": "6 schema", "detail": "no segments"})
+        return violations
+    for i, seg in enumerate(segments):
+        if seg.get("scene") not in SCENE_KEYS:
+            violations.append({"rule": "6 schema",
+                               "detail": f"segment {i}: unknown scene {seg.get('scene')!r}"})
+        if not isinstance(seg.get("voiceover"), str) or not seg.get("voiceover").strip():
+            violations.append({"rule": "6 schema", "detail": f"segment {i}: empty voiceover"})
+        if not isinstance(seg.get("display"), dict):
+            violations.append({"rule": "6 schema", "detail": f"segment {i}: missing display"})
+    if segments and segments[0].get("scene") != "hook_typewriter":
+        violations.append({"rule": "6 schema", "detail": "first segment must be hook_typewriter"})
+    if segments and segments[-1].get("scene") != "cta_card":
+        violations.append({"rule": "6 schema", "detail": "last segment must be cta_card"})
+    return violations
+
+
+def normalize_number(s):
+    return _NUM_NORM.sub("", s).lower()
+
+
+def check_spoken_numbers(script, source_text, canonical):
+    """Every spoken number must resolve to source material or canonical.json,
+    matched on normalized strings."""
+    haystack = normalize_number(source_text + json.dumps(canonical))
+    violations = []
+    for entry in script.get("spoken_numbers", []):
+        needle = normalize_number(str(entry))
+        # strip common verbal decoration so "About $2 billion" still matches
+        needle = re.sub(r"^(about|roughly|over|nearly|around)", "", needle)
+        core = re.findall(r"\d[\d.,]*[kmbt]?(?:illion)?[+]?|\d+", needle) or [needle]
+        for token in core:
+            token = token.replace("billion", "b").replace("million", "m") \
+                         .replace("trillion", "t").replace("illion", "")
+            if token and token not in haystack:
+                violations.append({
+                    "rule": "1 numbers",
+                    "detail": f"spoken number not found in source or canonical: {entry!r}",
+                })
+                break
+    return violations
+
+
+def check_forbidden_vocabulary(script):
+    text = _script_all_text(script).lower()
+    violations = []
+    for word in FORBIDDEN_WORDS:
+        if " " in word or word.endswith("x"):
+            hit = word in text
+        else:
+            hit = re.search(rf"\b{re.escape(word)}\b", text) is not None
+        if hit:
+            violations.append({"rule": "2 forbidden-vocabulary",
+                               "detail": f"forbidden term present: {word!r}"})
+    return violations
+
+
+def check_589_framing(script):
+    text = _script_all_text(script)
+    if "589" not in text:
+        return []
+    violations = []
+    if "derived anchor" not in text.lower():
+        violations.append({"rule": "3 589-framing",
+                           "detail": "$589 used without 'derived anchor' framing"})
+    for pat in BAD_589_PATTERNS:
+        if re.search(pat, text, re.IGNORECASE):
+            violations.append({"rule": "3 589-framing",
+                               "detail": f"$589 framed as certainty (pattern: {pat})"})
+    return violations
+
+
+def check_quotes(script):
+    violations = []
+    attributions = {}
+    for i, seg in enumerate(script.get("segments", [])):
+        if seg.get("scene") != "quote_card":
+            continue
+        display = seg.get("display", {})
+        quote = display.get("quote", "")
+        if len(quote.split()) >= 15:
+            violations.append({"rule": "4 quotes",
+                               "detail": f"segment {i}: quote is {len(quote.split())} words (limit <15)"})
+        source = display.get("attribution", "").strip().lower()
+        attributions[source] = attributions.get(source, 0) + 1
+    for source, count in attributions.items():
+        if count > 1:
+            violations.append({"rule": "4 quotes",
+                               "detail": f"multiple direct quotes from one source: {source!r}"})
+    return violations
+
+
+def check_disclaimer(script):
+    if DISCLAIMER not in script.get("caption_text", ""):
+        return [{"rule": "5 disclaimer",
+                 "detail": f"caption_text missing {DISCLAIMER!r}"}]
+    return []
+
+
+def programmatic_checks(script, source_text, canonical):
+    violations = validate_schema(script)
+    if violations:
+        return violations  # schema first; other checks assume shape
+    violations += check_spoken_numbers(script, source_text, canonical)
+    violations += check_forbidden_vocabulary(script)
+    violations += check_589_framing(script)
+    violations += check_quotes(script)
+    violations += check_disclaimer(script)
+    return violations
+
+
+def llm_review(script, source_text, canonical, settings):
+    """Independent second-model review; returns {"verdict", "violations"}."""
+    import anthropic
+
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    user_message = (
+        f"SCRIPT JSON\n{json.dumps(script, indent=2)}\n\n"
+        f"SOURCE MATERIAL\n{source_text}\n\n"
+        f"CANONICAL DATA\n{json.dumps(canonical, indent=2)}"
+    )
+    response = client.messages.create(
+        model=settings["anthropic_model"],
+        max_tokens=2000,
+        temperature=0.0,
+        system=QA_PROMPT.read_text(),
+        messages=[{"role": "user", "content": user_message}],
+    )
+    raw = response.content[0].text.strip()
+    if raw.startswith("```"):
+        raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw)
+    return json.loads(raw)
+
+
+def run_qa(script, source_text, canonical, settings, skip_llm=False):
+    """Full QA pass. Returns {"verdict": "pass"|"fail", "violations": [...]}."""
+    violations = programmatic_checks(script, source_text, canonical)
+    if violations:
+        return {"verdict": "fail", "violations": violations}
+    if not skip_llm:
+        result = llm_review(script, source_text, canonical, settings)
+        if result.get("verdict") != "pass":
+            return {"verdict": "fail", "violations": result.get("violations", [])}
+    return {"verdict": "pass", "violations": []}

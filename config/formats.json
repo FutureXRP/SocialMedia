@@ -1,0 +1,33 @@
+{
+  "formats": {
+    "field_note_explainer": {
+      "description": "Walk one post's core argument",
+      "duration_range": [180, 300],
+      "requires_post": true
+    },
+    "one_chart_one_claim": {
+      "description": "Single data moment, tight",
+      "duration_range": [60, 90],
+      "requires_post": false
+    },
+    "term_of_the_day": {
+      "description": "One concept from the evergreen list",
+      "duration_range": [60, 120],
+      "requires_post": false
+    },
+    "terminal_reading": {
+      "description": "What the Settlement Terminal shows this week",
+      "duration_range": [90, 150],
+      "requires_post": false
+    }
+  },
+  "weekday_weights": {
+    "0": { "field_note_explainer": 3, "one_chart_one_claim": 1, "term_of_the_day": 1, "terminal_reading": 1 },
+    "1": { "field_note_explainer": 1, "one_chart_one_claim": 2, "term_of_the_day": 2, "terminal_reading": 1 },
+    "2": { "field_note_explainer": 2, "one_chart_one_claim": 1, "term_of_the_day": 2, "terminal_reading": 1 },
+    "3": { "field_note_explainer": 1, "one_chart_one_claim": 2, "term_of_the_day": 1, "terminal_reading": 2 },
+    "4": { "field_note_explainer": 2, "one_chart_one_claim": 2, "term_of_the_day": 1, "terminal_reading": 1 },
+    "5": { "field_note_explainer": 1, "one_chart_one_claim": 1, "term_of_the_day": 2, "terminal_reading": 2 },
+    "6": { "field_note_explainer": 2, "one_chart_one_claim": 1, "term_of_the_day": 1, "terminal_reading": 2 }
+  }
+}

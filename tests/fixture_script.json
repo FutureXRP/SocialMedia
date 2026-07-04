@@ -1,0 +1,89 @@
+{
+  "title": "fixture-all-scenes",
+  "hook": "Banks park trillions in accounts that earn nothing. Why?",
+  "segments": [
+    {
+      "scene": "hook_typewriter",
+      "voiceover": "Banks park trillions of dollars in accounts that earn nothing. Nobody planned this. It is plumbing, and plumbing is invisible until it leaks.",
+      "display": { "line": "Trillions parked. Earning nothing. Why?" }
+    },
+    {
+      "scene": "stat_counter",
+      "voiceover": "The XRP Ledger has settled about one point five trillion dollars in cumulative volume, according to the Ripple Impact Report.",
+      "display": {
+        "label": "XRPL cumulative settled volume",
+        "value": "$1.5T",
+        "beats": ["Ripple Impact Report 2025", "Settlement, not speculation", "Check the math yourself"]
+      }
+    },
+    {
+      "scene": "declaration",
+      "voiceover": "Skeptics are right about one thing. Most crypto solves nothing. Settlement is the exception, because settlement is the actual problem.",
+      "display": {
+        "lines": ["Most crypto solves nothing.", "Settlement is the exception.", "It is the actual problem."],
+        "emphasis_index": 1
+      }
+    },
+    {
+      "scene": "chart_sqrt",
+      "voiceover": "The framework's five hundred eighty nine dollar figure is a derived anchor from published inputs, not a prediction. Square root of flow over float. Every input is published.",
+      "display": {
+        "annotation": "$589 — derived anchor from published inputs",
+        "sub_lines": ["sqrt(flow / float) impact law", "Every input is published. Check the math."]
+      }
+    },
+    {
+      "scene": "chart_bar",
+      "voiceover": "Compare the scale. RLUSD's market cap sits near one point two six billion. Cumulative ledger volume is measured in trillions.",
+      "display": {
+        "title": "SCALE COMPARISON (USD)",
+        "bars": [
+          { "label": "RLUSD market cap", "value_display": "$1.26B", "value_norm": 0.12 },
+          { "label": "XRPL cumulative volume", "value_display": "$1.5T", "value_norm": 1.0 }
+        ]
+      }
+    },
+    {
+      "scene": "chart_line",
+      "voiceover": "Real world asset tokenization on the ledger grew from twenty four point seven million to five hundred sixty eight million in the report period.",
+      "display": {
+        "title": "RWA TOKENIZATION GROWTH",
+        "points": [
+          { "label": "start", "value_norm": 0.04 },
+          { "label": "", "value_norm": 0.13 },
+          { "label": "", "value_norm": 0.3 },
+          { "label": "", "value_norm": 0.62 },
+          { "label": "now", "value_norm": 1.0 }
+        ],
+        "annotation": "$24.7M → $568M (Ripple Impact Report 2025)"
+      }
+    },
+    {
+      "scene": "quote_card",
+      "voiceover": "The Bank for International Settlements calls unified ledgers a foundation for the future monetary system. Seven central banks are already at the table in Project Agora.",
+      "display": {
+        "quote": "a foundation for the future monetary system",
+        "attribution": "BIS, on unified ledgers (paraphrase attributed)"
+      }
+    },
+    {
+      "scene": "list_reveal",
+      "voiceover": "Three things to verify yourself. The published inputs. The square root impact law. And the seven central banks in Project Agora.",
+      "display": {
+        "title": "VERIFY IT YOURSELF",
+        "items": ["The published inputs", "The square-root impact law", "7 central banks in Project Agorá"]
+      }
+    },
+    {
+      "scene": "cta_card",
+      "voiceover": "Every input is published. Check the math at xrpvaluation dot info. Research, not investment advice.",
+      "display": {
+        "headline": "Every input is published. Check the math.",
+        "site": "xrpvaluation.info"
+      }
+    }
+  ],
+  "cta_voiceover": "Every input is published. Check the math at xrpvaluation dot info. Research, not investment advice.",
+  "caption_text": "Trillions sit parked in nostro accounts earning nothing. The XRP Ledger has settled ~$1.5T cumulatively (Ripple Impact Report 2025). The $589 figure is a derived anchor from published inputs — every input is public, check the math. Research, not investment advice. #XRP #XRPL #CrossBorderPayments #Settlement",
+  "spoken_numbers": ["$1.5T", "$589", "$1.26B", "$24.7M", "$568M", "7"]
+}

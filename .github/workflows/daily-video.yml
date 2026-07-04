@@ -1,0 +1,90 @@
+name: daily-video
+
+on:
+  schedule:
+    - cron: "0 7 * * *"   # 07:00 UTC = 1–2 AM Tulsa
+  workflow_dispatch:
+    inputs:
+      topic_override:
+        description: "Post slug or evergreen key"
+        required: false
+        type: string
+      duration_target:
+        description: "Target duration in seconds"
+        required: false
+        type: choice
+        options: ["", "60", "120", "180", "300"]
+      format_override:
+        description: "Scene format key"
+        required: false
+        type: choice
+        options: ["", "field_note_explainer", "one_chart_one_claim", "term_of_the_day", "terminal_reading"]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: daily-video
+  cancel-in-progress: false
+
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          ffmpeg -version >/dev/null 2>&1 || sudo apt-get install -y ffmpeg
+
+      - name: Produce today's video
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DELIVERY_EMAIL: ${{ secrets.DELIVERY_EMAIL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.topic_override }}" ]; then ARGS="$ARGS --topic-override ${{ inputs.topic_override }}"; fi
+          if [ -n "${{ inputs.duration_target }}" ]; then ARGS="$ARGS --duration-target ${{ inputs.duration_target }}"; fi
+          if [ -n "${{ inputs.format_override }}" ]; then ARGS="$ARGS --format-override ${{ inputs.format_override }}"; fi
+          python src/main.py $ARGS
+
+      - name: Commit topics ledger and history
+        if: success()
+        run: |
+          git config user.name "xrpv-daily-video[bot]"
+          git config user.email "actions@github.com"
+          git add data/topics.json data/history/
+          git diff --cached --quiet || git commit -m "Record video run $(date -u +%F)"
+          git push
+
+      - name: Open failure issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const today = new Date().toISOString().slice(0, 10);
+            let stage = 'unknown', error = 'See workflow logs.';
+            try {
+              const f = JSON.parse(fs.readFileSync('output/failure.json', 'utf8'));
+              stage = f.stage; error = f.error + '\n\n```\n' + (f.traceback || '') + '\n```';
+            } catch (e) {}
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Video run failed ${today}`,
+              body: `**Stage:** ${stage}\n\n${error}\n\n[Workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
+            });

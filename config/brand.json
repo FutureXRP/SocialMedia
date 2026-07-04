@@ -1,0 +1,22 @@
+{
+  "canvas": [1080, 1920],
+  "fps": 30,
+  "colors": {
+    "bg": [8, 11, 17],
+    "panel": [13, 18, 27],
+    "grid": [24, 32, 44],
+    "ink": [222, 230, 238],
+    "dim": [110, 124, 140],
+    "green": [61, 220, 132],
+    "amber": [255, 184, 76],
+    "red": [255, 99, 92]
+  },
+  "font": "DejaVuSansMono",
+  "chrome": {
+    "header": "XRPVALUATION.INFO // OBSERVATORY",
+    "subheader_pattern": "{SERIES} — DAILY BRIEF",
+    "ai_label": "AI-GENERATED",
+    "progress_bar": true
+  },
+  "safe_zones": { "top_px": 260, "bottom_px": 400, "sides_px": 60 }
+}

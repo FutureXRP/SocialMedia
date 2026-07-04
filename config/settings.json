@@ -1,0 +1,15 @@
+{
+  "duration_target_default": 120,
+  "anthropic_model": "claude-sonnet-4-6",
+  "elevenlabs_voice_id": "SET_ME_ONCE_AND_NEVER_CHANGE",
+  "elevenlabs_model_id": "eleven_multilingual_v2",
+  "elevenlabs_output_format": "mp3_44100_128",
+  "email_delivery": false,
+  "ambient_bed": false,
+  "ambient_bed_db": -22,
+  "frame_format": "png",
+  "jpeg_quality": 92,
+  "site": "xrpvaluation.info",
+  "posts_json_url": "https://xrpvaluation.info/blog/posts.json",
+  "post_url_pattern": "https://xrpvaluation.info/blog/{slug}"
+}
