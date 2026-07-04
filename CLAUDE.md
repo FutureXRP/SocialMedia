@@ -35,3 +35,15 @@ non-negotiable. Highlights:
   evergreen queue seeded.
 
 Tests: `python -m pytest tests/`. Fixture render: see Phase 1 command above.
+
+## Post-launch tuning (2026-07-04, after first live runs)
+
+- **Duration is a contract:** a workflow duration input filters the format
+  rotation to formats whose range contains it, the scriptwriter gets a hard
+  word budget, and `qa.check_pacing` rejects scripts outside ±20-25% of it.
+- **Cost controls:** QA runs on `qa_model` (Haiku), source truncates to
+  `source_max_words` (2500), TTS uses `eleven_flash_v2_5` (half credits).
+- **Retail-investor voice:** scriptwriter prompt targets 8th-grade reading
+  level, jargon banned unless immediately explained, one analogy per video.
+- **Look:** narrative text is DejaVu Sans; mono is reserved for chrome,
+  numbers, and the URL. Rounded panels + dot grid replaced the crosshatch.

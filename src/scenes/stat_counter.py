@@ -25,9 +25,9 @@ def render(draw, t_local, duration, display, ctx):
     colors = ctx["brand"]["colors"]
     x0, y0, x1, y1 = ctx["content_box"]
 
-    label_font = ctx["font"](40)
-    value_font = ctx["font"](120, bold=True)
-    beat_font = ctx["font"](42)
+    label_font = ctx["sans"](40)
+    value_font = ctx["font"](120, bold=True)  # numbers stay mono
+    beat_font = ctx["sans"](44)
 
     a_label = ease_in(t_local, 0.0, 0.5)
     draw_centered(draw, ctx, settle_y(y0 + 120, a_label), display.get("label", "").upper(),

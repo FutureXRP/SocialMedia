@@ -7,8 +7,8 @@ def render(draw, t_local, duration, display, ctx):
     colors = ctx["brand"]["colors"]
     x0, y0, x1, y1 = ctx["content_box"]
 
-    quote_font = ctx["font"](54, bold=True)
-    attr_font = ctx["font"](38)
+    quote_font = ctx["sans"](56, bold=True)
+    attr_font = ctx["sans"](38)
 
     rows = wrap_text('“' + display.get("quote", "") + '”', quote_font, x1 - x0 - 80)
     row_h = 74

@@ -1,8 +1,10 @@
 {
-  "duration_target_default": 120,
+  "duration_target_default": 90,
   "anthropic_model": "claude-sonnet-4-6",
+  "qa_model": "claude-haiku-4-5",
+  "source_max_words": 2500,
   "elevenlabs_voice_id": "s3TPKV1kjDlVtZbl4Ksh",
-  "elevenlabs_model_id": "eleven_multilingual_v2",
+  "elevenlabs_model_id": "eleven_flash_v2_5",
   "elevenlabs_output_format": "mp3_44100_128",
   "email_delivery": false,
   "ambient_bed": false,

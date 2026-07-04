@@ -161,6 +161,31 @@ def test_long_quote_fails():
     assert any("15" in v["detail"] for v in violations)
 
 
+def test_overlong_script_fails_pacing():
+    # regression: a 60s request produced a 265s video
+    from qa import check_pacing
+    long_script = {"segments": [{"voiceover": " ".join(["word"] * 660)}]}
+    violations = check_pacing(long_script, 60)
+    assert violations and "60s target" in violations[0]["detail"]
+
+    fits = {"segments": [{"voiceover": " ".join(["word"] * 150)}]}
+    assert check_pacing(fits, 60) == []
+    assert check_pacing(long_script, None) == []  # no target, no contract
+
+
+def test_duration_target_constrains_format_choice():
+    import json as _json
+    from datetime import date as _date
+    from main import pick_format
+    formats_cfg = _json.loads((ROOT / "config" / "formats.json").read_text())
+    topic = {"type": "post", "slug": "x"}
+    for weekday_probe in range(14):  # every weekday, both weight tables
+        day = _date(2026, 7, 1).fromordinal(_date(2026, 7, 1).toordinal() + weekday_probe)
+        key = pick_format(formats_cfg, topic, day, duration_target=60)
+        lo, hi = formats_cfg["formats"][key]["duration_range"]
+        assert lo <= 60 <= hi, f"{key} cannot deliver a 60s video"
+
+
 def test_missing_disclaimer_fails():
     poisoned = copy.deepcopy(FIXTURE)
     poisoned["caption_text"] = "No disclaimer here #XRP"

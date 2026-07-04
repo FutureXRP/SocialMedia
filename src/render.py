@@ -20,19 +20,23 @@ WORDS_PER_MINUTE = 150
 MIN_SEGMENT_SECONDS = 2.5
 
 _FONT_DIR = Path(__file__).resolve().parent.parent / "assets" / "fonts"
-_FONT_FILES = {
+_MONO_FILES = {
     False: _FONT_DIR / "DejaVuSansMono.ttf",
     True: _FONT_DIR / "DejaVuSansMono-Bold.ttf",
 }
+_SANS_FILES = {
+    False: _FONT_DIR / "DejaVuSans.ttf",
+    True: _FONT_DIR / "DejaVuSans-Bold.ttf",
+}
 
 
-def make_font_loader():
+def make_font_loader(files):
     cache = {}
 
     def font(size, bold=False):
         key = (size, bold)
         if key not in cache:
-            cache[key] = ImageFont.truetype(str(_FONT_FILES[bold]), size)
+            cache[key] = ImageFont.truetype(str(files[bold]), size)
         return cache[key]
 
     return font
@@ -44,7 +48,10 @@ def build_ctx(brand, series="OBSERVATORY"):
     caption_panel_h = 200
     ctx = {
         "brand": brand,
-        "font": make_font_loader(),
+        # mono is the data/chrome voice; sans is the narrative voice —
+        # all-mono everywhere read as "robotic" in review
+        "font": make_font_loader(_MONO_FILES),
+        "sans": make_font_loader(_SANS_FILES),
         "series": series,
         # content sits inside safe zones, above the caption panel
         "content_box": (sz["sides_px"], sz["top_px"] + 60,
@@ -88,8 +95,9 @@ def draw_static_chrome(img, ctx):
     d.text((w - aw - 40, 116), ai, font=ai_font, fill=tuple(colors["amber"]))
 
     cx0, cy0, cx1, cy1 = ctx["caption_box"]
-    d.rectangle([cx0 - 12, cy0 - 12, cx1 + 12, cy1 + 12],
-                fill=tuple(colors["panel"]), outline=tuple(colors["grid"]))
+    d.rounded_rectangle([cx0 - 12, cy0 - 12, cx1 + 12, cy1 + 12], radius=24,
+                        fill=tuple(colors["panel"]), outline=tuple(colors["grid"]),
+                        width=2)
     return img
 
 
@@ -112,7 +120,7 @@ def draw_dynamic_chrome(d, ctx, t_global, total_duration, caption_events):
     text = phrase_at_time(caption_events, t_global)
     if text:
         cx0, cy0, cx1, cy1 = ctx["caption_box"]
-        cap_font = ctx["font"](46, bold=True)
+        cap_font = ctx["sans"](46, bold=True)
         rows = wrap_text(text, cap_font, cx1 - cx0 - 40)[:3]
         row_h = 62
         y = (cy0 + cy1) // 2 - (len(rows) * row_h) // 2

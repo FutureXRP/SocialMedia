@@ -52,8 +52,12 @@ def parse_script_json(raw):
 
 def build_user_message(duration_target, format_key, source_text, canonical,
                        recent_titles):
+    word_budget = round(duration_target / 60 * 150)
     return (
-        f"DURATION TARGET\n{duration_target} seconds\n\n"
+        f"DURATION TARGET\n{duration_target} seconds. HARD LIMIT: total "
+        f"voiceover across all segments must be {round(word_budget * 0.8)}–"
+        f"{round(word_budget * 1.1)} words (target ~{word_budget}). Scripts "
+        f"outside this range are rejected.\n\n"
         f"FORMAT\n{format_key}\n\n"
         f"SOURCE MATERIAL\n{source_text}\n\n"
         f"CANONICAL DATA\n{json.dumps(canonical, indent=2)}\n\n"

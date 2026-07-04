@@ -31,11 +31,11 @@ def render(draw, t_local, duration, display, ctx):
             draw.ellipse([px - 10, py - 10, px + 10, py + 10], fill=tuple(colors["amber"]))
 
     a = ease_in(t_local, CHART_DRAW_SECONDS * 0.6, 0.7)
-    ann_font = ctx["font"](48, bold=True)
+    ann_font = ctx["sans"](46, bold=True)
     draw_centered(draw, ctx, settle_y(cy1 + 80, a), display.get("annotation", ""),
                   ann_font, faded(ctx, tuple(colors["amber"]), a))
 
-    sub_font = ctx["font"](38)
+    sub_font = ctx["sans"](36)
     for i, sub in enumerate(display.get("sub_lines", [])[:2]):
         sa = ease_in(t_local, CHART_DRAW_SECONDS * 0.6 + 0.5 + i * 0.5, 0.6)
         draw_centered(draw, ctx, settle_y(cy1 + 180 + i * 62, sa), sub,

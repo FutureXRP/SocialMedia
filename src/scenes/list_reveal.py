@@ -9,8 +9,8 @@ def render(draw, t_local, duration, display, ctx):
     colors = ctx["brand"]["colors"]
     x0, y0, x1, y1 = ctx["content_box"]
 
-    title_font = ctx["font"](50, bold=True)
-    item_font = ctx["font"](44)
+    title_font = ctx["sans"](50, bold=True)
+    item_font = ctx["sans"](44)
 
     a_title = ease_in(t_local, 0.0, 0.6)
     draw_centered(draw, ctx, settle_y(y0 + 80, a_title), display.get("title", ""),

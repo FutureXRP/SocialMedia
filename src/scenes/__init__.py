@@ -120,13 +120,17 @@ def base_background(display, ctx):
     d = ImageDraw.Draw(img)
 
     x0, y0, x1, y1 = ctx["content_box"]
-    d.rectangle([x0 - 24, y0 - 24, x1 + 24, y1 + 24],
-                fill=tuple(colors["panel"]), outline=tuple(colors["grid"]))
+    d.rounded_rectangle([x0 - 24, y0 - 24, x1 + 24, y1 + 24], radius=28,
+                        fill=tuple(colors["panel"]), outline=tuple(colors["grid"]),
+                        width=2)
+    # subtle dot grid — the full crosshatch read as "robotic"
     grid = tuple(colors["grid"])
-    for gx in range(x0, x1 + 1, 120):
-        d.line([gx, y0 - 24, gx, y1 + 24], fill=grid)
-    for gy in range(y0 - 24, y1 + 25, 120):
-        d.line([x0 - 24, gy, x1 + 24, gy], fill=grid)
+    for gx in range(x0 + 30, x1 - 29, 90):
+        for gy in range(y0 + 30, y1 - 29, 90):
+            d.ellipse([gx - 2, gy - 2, gx + 2, gy + 2], fill=grid)
+    # brand accent tab on the panel's top edge
+    d.rounded_rectangle([x0 - 24, y0 - 24, x0 + 96, y0 - 16], radius=4,
+                        fill=tuple(colors["green"]))
     return img
 
 

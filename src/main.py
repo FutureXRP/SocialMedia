@@ -36,7 +36,7 @@ def load_config(name):
     return json.loads((ROOT / "config" / name).read_text())
 
 
-def pick_format(formats_cfg, topic, run_date, override=None):
+def pick_format(formats_cfg, topic, run_date, override=None, duration_target=None):
     formats = formats_cfg["formats"]
     if override:
         if override not in formats:
@@ -47,6 +47,14 @@ def pick_format(formats_cfg, topic, run_date, override=None):
         k: w for k, w in weights.items()
         if w > 0 and not (formats[k].get("requires_post") and topic["type"] != "post")
     }
+    if duration_target:
+        # a requested duration outranks the rotation: only formats whose
+        # range contains it (a 60s request must never become a 265s video)
+        fits = {k: w for k, w in eligible.items()
+                if formats[k]["duration_range"][0] <= duration_target
+                <= formats[k]["duration_range"][1]}
+        if fits:
+            eligible = fits
     rng = random.Random(run_date.toordinal())  # deterministic per day
     keys = list(eligible)
     return rng.choices(keys, weights=[eligible[k] for k in keys])[0]
@@ -102,9 +110,11 @@ def run_pipeline(args):
         topics = content.load_topics()
         topic = content.select_topic(topics, posts, override=args.topic_override)
         print(f"[content] topic: {topic}")
-        source_text, source_url = content.gather_source_material(topic, settings)
+        source_text, source_url = content.gather_source_material(
+            topic, settings, max_words=settings.get("source_max_words", 2500))
         canonical = content.load_canonical()
-        format_key = pick_format(formats_cfg, topic, run_date, args.format_override)
+        format_key = pick_format(formats_cfg, topic, run_date,
+                                 args.format_override, args.duration_target)
         duration_target = pick_duration(formats_cfg, format_key, settings,
                                         args.duration_target)
         print(f"[content] format: {format_key}, target: {duration_target}s")
@@ -116,7 +126,8 @@ def run_pipeline(args):
         (OUTPUT_DIR / "script.json").write_text(json.dumps(script, indent=2))
 
         _set_stage("qa")
-        verdict = run_qa(script, source_text, canonical, settings)
+        verdict = run_qa(script, source_text, canonical, settings,
+                         duration_target=duration_target)
         qa_verdicts.append(verdict)
         if verdict["verdict"] == "fail":
             print(f"[qa] fail: {verdict['violations']} — one retry")
@@ -124,7 +135,8 @@ def run_pipeline(args):
                                      canonical, titles, settings,
                                      qa_feedback=verdict["violations"])
             (OUTPUT_DIR / "script.json").write_text(json.dumps(script, indent=2))
-            verdict = run_qa(script, source_text, canonical, settings)
+            verdict = run_qa(script, source_text, canonical, settings,
+                             duration_target=duration_target)
             qa_verdicts.append(verdict)
             if verdict["verdict"] == "fail":
                 raise RuntimeError(

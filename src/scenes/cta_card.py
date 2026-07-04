@@ -9,9 +9,9 @@ def render(draw, t_local, duration, display, ctx):
     colors = ctx["brand"]["colors"]
     x0, y0, x1, y1 = ctx["content_box"]
 
-    head_font = ctx["font"](58, bold=True)
-    site_font = ctx["font"](64, bold=True)
-    disc_font = ctx["font"](36)
+    head_font = ctx["sans"](60, bold=True)
+    site_font = ctx["font"](64, bold=True)  # the URL stays mono — it's data
+    disc_font = ctx["sans"](36)
 
     mid = (y0 + y1) // 2
     a_head = ease_in(t_local, 0.2, 0.7)

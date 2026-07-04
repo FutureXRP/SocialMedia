@@ -215,6 +215,28 @@ def check_quotes(script):
     return violations
 
 
+WORDS_PER_MINUTE = 150
+PACING_LOW, PACING_HIGH = 0.75, 1.2
+
+
+def check_pacing(script, duration_target):
+    """A requested duration is a contract: total voiceover must land within
+    [75%, 120%] of the word budget (a 60s request must not render at 4:30)."""
+    if not duration_target:
+        return []
+    words = sum(len(seg.get("voiceover", "").split())
+                for seg in script.get("segments", []))
+    budget = duration_target / 60 * WORDS_PER_MINUTE
+    if words < budget * PACING_LOW or words > budget * PACING_HIGH:
+        return [{"rule": "7 pacing",
+                 "detail": f"voiceover is {words} words ≈ "
+                           f"{words / WORDS_PER_MINUTE * 60:.0f}s spoken; the "
+                           f"{duration_target}s target requires "
+                           f"{int(budget * PACING_LOW)}–{int(budget * PACING_HIGH)}"
+                           f" words. Cut or expand to fit."}]
+    return []
+
+
 def check_disclaimer(script):
     if DISCLAIMER not in script.get("caption_text", ""):
         return [{"rule": "5 disclaimer",
@@ -222,7 +244,7 @@ def check_disclaimer(script):
     return []
 
 
-def programmatic_checks(script, source_text, canonical):
+def programmatic_checks(script, source_text, canonical, duration_target=None):
     violations = validate_schema(script)
     if violations:
         return violations  # schema first; other checks assume shape
@@ -231,6 +253,7 @@ def programmatic_checks(script, source_text, canonical):
     violations += check_589_framing(script)
     violations += check_quotes(script)
     violations += check_disclaimer(script)
+    violations += check_pacing(script, duration_target)
     return violations
 
 
@@ -245,7 +268,7 @@ def llm_review(script, source_text, canonical, settings):
         f"CANONICAL DATA\n{json.dumps(canonical, indent=2)}"
     )
     response = client.messages.create(
-        model=settings["anthropic_model"],
+        model=settings.get("qa_model", settings["anthropic_model"]),
         max_tokens=2000,
         temperature=0.0,
         system=QA_PROMPT.read_text(),
@@ -268,9 +291,11 @@ def interpret_llm_result(result):
             "violations": result.get("violations", [])}
 
 
-def run_qa(script, source_text, canonical, settings, skip_llm=False):
+def run_qa(script, source_text, canonical, settings, skip_llm=False,
+           duration_target=None):
     """Full QA pass. Returns {"verdict": "pass"|"fail", "violations": [...]}."""
-    violations = programmatic_checks(script, source_text, canonical)
+    violations = programmatic_checks(script, source_text, canonical,
+                                     duration_target)
     if violations:
         return {"verdict": "fail", "violations": violations}
     if not skip_llm:
