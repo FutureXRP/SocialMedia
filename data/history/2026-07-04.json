@@ -1,0 +1,329 @@
+{
+  "date": "2026-07-04",
+  "topic": {
+    "type": "post",
+    "slug": "jit-sourcing",
+    "title": "Why <em>just-in-time sourcing</em> doesn't kill the price argument"
+  },
+  "format": "field_note_explainer",
+  "script": {
+    "title": "jit-sourcing-doesnt-kill-price-argument",
+    "hook": "A critic found the sharpest hole in this framework. Following their logic all the way through didn't break it. It proved something bigger.",
+    "segments": [
+      {
+        "scene": "hook_typewriter",
+        "voiceover": "A critic found the sharpest hole in this framework. Following their logic all the way through didn't break it. It proved something bigger.",
+        "display": {
+          "line": "The sharpest objection to this framework proves it."
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "Here's the objection. Banks buy XRP milliseconds before a cross-border payment. They sell it immediately after. Nobody holds it. So the high-price scenarios collapse. It's a serious argument. It deserves a serious answer.",
+        "display": {
+          "lines": [
+            "Banks buy XRP milliseconds before settlement.",
+            "Sell immediately after.",
+            "Nobody holds it \u2014 so price collapses?"
+          ],
+          "emphasis_index": 2
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "This framework doesn't price XRP like a stock. It sizes XRP like infrastructure, specifically, like a pipe. The pipe has to be wide enough to carry the flow. Speed doesn't widen the pipe.",
+        "display": {
+          "lines": [
+            "XRP is not valued.",
+            "It is sized.",
+            "Like a pipe that must fit the flow."
+          ],
+          "emphasis_index": 1
+        }
+      },
+      {
+        "scene": "stat_counter",
+        "voiceover": "Here's the math. At XRP's current market cap of roughly eighty-two billion dollars, a single two-billion-dollar cross-border transaction produces approximately forty-seven basis points of slippage, that's the price moving against the trade before it finishes. Institutional desks tolerate ten to twenty-five basis points. This trade fails before it completes.",
+        "display": {
+          "label": "Slippage on a $2B transaction at current market cap",
+          "value": "~47 basis points",
+          "beats": [
+            "Institutional tolerance: 10\u201325 bps",
+            "Current market cap: ~$82B",
+            "Transaction fails on slippage grounds"
+          ]
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "Try the same transaction ten times fast. You still get forty-seven basis points each time. The bowling ball doesn't fit the garden hose just because you push it faster. The pipe has to be wider from the start.",
+        "display": {
+          "lines": [
+            "Velocity doesn't widen the pipe.",
+            "The pipe must be sized for the hardest transaction.",
+            "That sizing produces the framework's price scenarios."
+          ],
+          "emphasis_index": 0
+        }
+      },
+      {
+        "scene": "chart_bar",
+        "voiceover": "That sizing runs from a hundred and eighty dollars, covering fourteen percent of SWIFT's daily flow, up to two thousand nine hundred and fifty-one dollars at full institutional scale. These aren't predictions. They are the pipe diameters required for each level of flow.",
+        "display": {
+          "title": "Required Pipe Width \u2014 Framework Scenario Tiers",
+          "bars": [
+            {
+              "label": "Near-term corridor",
+              "value_display": "~$1.0T MCap",
+              "value_norm": 0.07
+            },
+            {
+              "label": "$180 \u2014 14% of SWIFT",
+              "value_display": "~$11T MCap",
+              "value_norm": 0.3
+            },
+            {
+              "label": "$2,951 \u2014 Institutional",
+              "value_display": "~$181T MCap",
+              "value_norm": 0.75
+            },
+            {
+              "label": "$6,557 \u2014 Sovereign",
+              "value_display": "~$402T MCap",
+              "value_norm": 1.0
+            }
+          ]
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "Now here's where the objection actually fails, and opens into something more useful. When a bank sources XRP three seconds before a transaction, it is not summoning XRP from nothing. It is buying from a liquidity provider who already holds inventory continuously. That counterparty exists precisely to be available on demand.",
+        "display": {
+          "lines": [
+            "JIT sourcing doesn't eliminate inventory.",
+            "It relocates inventory to liquidity providers.",
+            "Empty shelves can't fill just-in-time orders."
+          ],
+          "emphasis_index": 2
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "So the real question becomes: at what price does it become rational for a liquidity provider to hold that inventory? The framework runs the math.",
+        "display": {
+          "lines": [
+            "At what price does holding inventory become rational?",
+            "The LP yield math answers this."
+          ],
+          "emphasis_index": 0
+        }
+      },
+      {
+        "scene": "chart_bar",
+        "voiceover": "Liquidity providers earn a spread on every transaction. That spread has to cover their cost of capital, typically eight to ten percent annual return for institutional desks, plus the drag from holding a volatile asset. Running this across the scenario tiers at nine percent return on equity and ten times annual capital turnover produces required spreads of five basis points at the near-term corridor, nine basis points at SWIFT scale, twenty-two basis points at institutional scale, and twenty-five basis points at sovereign scale.",
+        "display": {
+          "title": "LP Required Spread by Scenario Tier (9% ROE, 10\u00d7 turnover)",
+          "bars": [
+            {
+              "label": "Near-term corridor",
+              "value_display": "~5bp \u2713",
+              "value_norm": 0.2
+            },
+            {
+              "label": "$180 \u2014 14% SWIFT",
+              "value_display": "~9bp \u2713",
+              "value_norm": 0.36
+            },
+            {
+              "label": "$2,951 \u2014 Institutional",
+              "value_display": "~22bp \u2713",
+              "value_norm": 0.88
+            },
+            {
+              "label": "$6,557 \u2014 Sovereign",
+              "value_display": "~25bp \u26a0",
+              "value_norm": 1.0
+            }
+          ]
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "At the near-term and SWIFT-scale tiers, required spreads sit comfortably within institutional tolerance. The model implies a self-sustaining equilibrium, liquidity providers earn enough to hold, banks pay within tolerance to use the rail, and just-in-time sourcing stays reliably available. The system validates itself from the supply side.",
+        "display": {
+          "lines": [
+            "LPs earn enough to hold.",
+            "Banks pay within tolerance.",
+            "JIT sourcing remains available."
+          ],
+          "emphasis_index": 2
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "At sovereign scale, the required spread touches the upper edge of tolerance. That isn't a flaw. That is the model identifying exactly where liquidity provider economics become the binding constraint, and naming the condition that resolves it: deeper markets are less volatile markets, which compress required spreads, which keep the rail usable.",
+        "display": {
+          "lines": [
+            "Deeper markets are less volatile markets.",
+            "Less volatility compresses required spreads.",
+            "Depth and stability reinforce each other."
+          ],
+          "emphasis_index": 1
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "Here is what the original series left implicit, and what this objection forces into the open. If XRP adoption reaches institutional scale, liquidity providers holding inventory continuously are not speculating. They are functioning as reserve asset holders, holding XRP because the settlement architecture requires it, at sufficient depth, for the system to work. That is the functional definition of a reserve asset.",
+        "display": {
+          "lines": [
+            "Economically compelled.",
+            "Large-scale.",
+            "Continuous holding \u2014 that is reserve asset status."
+          ],
+          "emphasis_index": 2
+        }
+      },
+      {
+        "scene": "quote_card",
+        "voiceover": "The source material puts it plainly, and it's worth sitting with.",
+        "display": {
+          "quote": "Store of value doesn't emerge from community belief or market narrative.",
+          "attribution": "The Living Framework Field Note No. 1 \u2014 April 2026"
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "It emerges from the structure of the system that requires the asset to be held. Gold's reserve status wasn't declared by a committee. It was revealed by the behavior of institutions that needed a neutral settlement asset no counterparty controlled. The sharpest bear case against this framework, followed all the way through, describes precisely how XRP acquires reserve asset status, without anyone deciding to treat it that way.",
+        "display": {
+          "lines": [
+            "Reserve status isn't declared.",
+            "It is revealed by structural necessity.",
+            "The bear case traces the path."
+          ],
+          "emphasis_index": 1
+        }
+      },
+      {
+        "scene": "list_reveal",
+        "voiceover": "What should you watch? Not the price. Watch whether ODL corridor volume, that's on-demand liquidity, XRP-mediated settlement, grows relative to pre-funded account settlement over time. That shift is the behavioral evidence that LP capital formation is occurring at scale. It is the earliest observable signal of the reserve asset dynamics this framework describes.",
+        "display": {
+          "title": "What to Watch",
+          "items": [
+            "ODL corridor volume vs. pre-funded settlement",
+            "LP spread compression as depth grows",
+            "Volatility falling as institutional depth increases",
+            "Falsification criteria from Part VI of the series"
+          ]
+        }
+      },
+      {
+        "scene": "cta_card",
+        "voiceover": "The full framework, Part One on the slippage model, Part Six on probability and falsification, and now Field Note One on LP yield math, is at xrpvaluation.info. Research, not investment advice. Do your own work.",
+        "display": {
+          "headline": "The full framework lives at xrpvaluation.info",
+          "site": "xrpvaluation.info"
+        }
+      }
+    ],
+    "cta_voiceover": "The full framework, Part One on the slippage model, Part Six on probability and falsification, and now Field Note One on LP yield math, is at xrpvaluation.info. Research, not investment advice. Do your own work.",
+    "caption_text": "The sharpest objection to the XRP valuation framework was that just-in-time sourcing eliminates inventory \u2014 so the high-price scenarios collapse. Running the liquidity provider yield math all the way through shows the opposite. JIT sourcing relocates inventory to LPs. The model validates itself from the supply side. And the bear case, followed to its conclusion, describes exactly how reserve asset status emerges \u2014 without anyone deciding to treat it that way. Full framework at xrpvaluation.info. Research, not investment advice. #XRP #CrossBorderPayments #BridgeAsset #LiquidityProviders #XRPValuation",
+    "spoken_numbers": [
+      "eighty-two billion dollars ($82B)",
+      "two billion dollars ($2B)",
+      "forty-seven basis points (47bp)",
+      "ten to twenty-five basis points (10\u201325bp)",
+      "ten times (10\u00d7)",
+      "fourteen percent (14%)",
+      "a hundred and eighty dollars ($180)",
+      "two thousand nine hundred and fifty-one dollars ($2,951)",
+      "six thousand five hundred and fifty-seven dollars ($6,557)",
+      "eight to ten percent (8\u201310%)",
+      "nine percent (9%)",
+      "five basis points (5bp)",
+      "nine basis points (9bp)",
+      "twenty-two basis points (22bp)",
+      "twenty-five basis points (25bp)",
+      "one trillion dollars ($1.0T)",
+      "eleven trillion dollars ($11T)",
+      "one hundred and eighty-one trillion dollars ($181T)",
+      "four hundred and two trillion dollars ($402T)"
+    ]
+  },
+  "qa_verdicts": [
+    {
+      "verdict": "pass",
+      "violations": []
+    }
+  ],
+  "durations": {
+    "total": 264.569,
+    "segments": [
+      [
+        0.0,
+        6.664
+      ],
+      [
+        6.664,
+        19.772
+      ],
+      [
+        19.772,
+        32.079
+      ],
+      [
+        32.079,
+        51.919
+      ],
+      [
+        51.919,
+        61.788
+      ],
+      [
+        61.788,
+        77.462
+      ],
+      [
+        77.462,
+        96.27
+      ],
+      [
+        96.27,
+        104.525
+      ],
+      [
+        104.525,
+        133.388
+      ],
+      [
+        133.388,
+        152.475
+      ],
+      [
+        152.475,
+        173.28
+      ],
+      [
+        173.28,
+        197.997
+      ],
+      [
+        197.997,
+        201.806
+      ],
+      [
+        201.806,
+        226.512
+      ],
+      [
+        226.512,
+        248.396
+      ],
+      [
+        248.396,
+        264.569
+      ]
+    ]
+  },
+  "word_count": 706,
+  "render_seconds": 452.0
+}
