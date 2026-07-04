@@ -251,7 +251,21 @@ def llm_review(script, source_text, canonical, settings):
         system=QA_PROMPT.read_text(),
         messages=[{"role": "user", "content": user_message}],
     )
-    return extract_json_object(response.content[0].text)
+    return interpret_llm_result(extract_json_object(response.content[0].text))
+
+
+def interpret_llm_result(result):
+    """Derive the verdict from per-rule statuses instead of trusting the
+    model's top-level verdict — a live run returned verdict=fail with a
+    violations list whose every entry concluded 'no violation'."""
+    if "checks" in result:
+        failed = [c for c in result["checks"] if c.get("status") != "pass"]
+        return {"verdict": "fail" if failed else "pass",
+                "violations": [{"rule": c.get("rule", "?"),
+                                "detail": c.get("detail", "")} for c in failed]}
+    # legacy shape: {"verdict", "violations"}
+    return {"verdict": result.get("verdict", "fail"),
+            "violations": result.get("violations", [])}
 
 
 def run_qa(script, source_text, canonical, settings, skip_llm=False):

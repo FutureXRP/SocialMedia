@@ -90,6 +90,28 @@ def test_llm_response_with_trailing_commentary_parses():
     assert extract_json_object(prose_first)["verdict"] == "pass"
 
 
+def test_llm_verdict_derived_from_check_statuses():
+    # regression: run 3 returned verdict=fail while every "violation"
+    # concluded "no violation" — the verdict must come from the statuses
+    from qa import interpret_llm_result
+    all_pass = {"verdict": "fail", "checks": [
+        {"rule": "1 numbers", "status": "pass", "detail": ""},
+        {"rule": "5 disclaimer", "status": "pass", "detail": ""},
+    ]}
+    assert interpret_llm_result(all_pass) == {"verdict": "pass", "violations": []}
+
+    one_fail = {"verdict": "pass", "checks": [
+        {"rule": "1 numbers", "status": "pass", "detail": ""},
+        {"rule": "2 vocabulary", "status": "fail", "detail": "says 'moon'"},
+    ]}
+    result = interpret_llm_result(one_fail)
+    assert result["verdict"] == "fail"
+    assert result["violations"] == [{"rule": "2 vocabulary", "detail": "says 'moon'"}]
+
+    legacy = {"verdict": "pass", "violations": []}
+    assert interpret_llm_result(legacy)["verdict"] == "pass"
+
+
 def test_spelled_out_fabricated_number_still_fails():
     script = copy.deepcopy(FIXTURE)
     script["spoken_numbers"] = ["ninety-nine trillion dollars"]

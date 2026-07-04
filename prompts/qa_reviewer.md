@@ -35,12 +35,22 @@ Check every one of these rules:
    negatively. No quotes attributed to real people that do not appear in the
    source material.
 
-Return ONLY valid JSON, no markdown fences:
+Work through every rule above, then return ONLY valid JSON, no markdown
+fences, in exactly this shape:
 {
-  "verdict": "pass" | "fail",
-  "violations": [
-    { "rule": "<rule number and short name>", "detail": "<what and where>" }
-  ]
+  "checks": [
+    { "rule": "<rule number and short name>",
+      "status": "pass" | "fail",
+      "detail": "<if fail: what is wrong and where. if pass: empty string>" }
+  ],
+  "verdict": "pass" | "fail"
 }
 
-"violations" must be an empty array when the verdict is "pass".
+- Exactly one entry per rule (1–6). "status" is your final finding for that
+  rule after all analysis.
+- If your analysis of a rule concludes "traceable", "compliant",
+  "withdrawn", or "no violation", that rule's status is "pass". Never
+  report a passing check as a failure, and never put analysis narration in
+  "detail" for a passing check.
+- "verdict" is "fail" if and only if at least one check has status "fail".
+- Output the JSON object and nothing after it.
