@@ -42,6 +42,37 @@ def test_fabricated_number_fails_qa():
     assert any("9,999,999" in v["detail"] for v in violations)
 
 
+def test_spelled_out_numbers_trace_to_digit_sources():
+    # regression: the first live run flagged all of these as fabricated
+    # because the voiceover spells numbers out while sources carry digits
+    source = ("XRP's current market cap of roughly $82 billion. Slippage of "
+              "47 basis points on a $2B payment. 10–25 basis points. "
+              "3% volatility and 1% daily turnover. The $180 scenario. "
+              "~9bp. 8 to 10 percent annual return.")
+    script = copy.deepcopy(FIXTURE)
+    script["spoken_numbers"] = [
+        "eighty-two billion dollars",
+        "approximately forty-seven basis points",
+        "ten to twenty-five basis points",
+        "three percent volatility",
+        "one percent daily turnover",
+        "two-billion-dollar transaction",
+        "one-hundred-eighty-dollar scenario",
+        "roughly nine basis points",
+        "eight to ten percent annual return",
+        "eighty-two billion dollars ($82B)",
+        "one point five trillion dollars",
+    ]
+    assert check_spoken_numbers(script, source, CANONICAL) == []
+
+
+def test_spelled_out_fabricated_number_still_fails():
+    script = copy.deepcopy(FIXTURE)
+    script["spoken_numbers"] = ["ninety-nine trillion dollars"]
+    violations = check_spoken_numbers(script, SOURCE, CANONICAL)
+    assert any("ninety-nine" in v["detail"] for v in violations)
+
+
 def test_forbidden_word_fails_qa():
     poisoned = copy.deepcopy(FIXTURE)
     poisoned["segments"][1]["voiceover"] += " This is about to explode, trust me."

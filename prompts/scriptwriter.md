@@ -24,6 +24,11 @@ TRUTH RULES (violations are build failures, not style notes)
   inputs" — never a prediction, target, or promise.
 - Maximum one direct quote per external source, under 15 words. Prefer
   paraphrase with attribution ("the BIS's 2026 annual report describes...").
+- A quote_card may ONLY carry text that appears word-for-word in the SOURCE
+  MATERIAL. Never put a paraphrase, synthesis, or compressed idea inside
+  quotation marks or a quote_card — a paraphrase presented as a quote is a
+  fabrication. If the line you want is not verbatim in the source, use a
+  declaration scene and attribute the paraphrase in the voiceover instead.
 - The script must be consistent with the source post. Do not extend its
   claims beyond what it argues.
 - Never give buying, selling, or timing advice.
@@ -40,7 +45,9 @@ Return ONLY valid JSON, no markdown fences, matching this schema:
   "cta_voiceover": "closing lines directing to xrpvaluation.info",
   "caption_text": "TikTok caption, <=150 words, 3–5 hashtags, includes
                    'Research, not investment advice.'",
-  "spoken_numbers": ["every numeric claim in the script, verbatim, one per entry"]
+  "spoken_numbers": ["every numeric claim in the script, one per entry, as
+                      spoken followed by the source's digit form in
+                      parentheses, e.g. 'eighty-two billion dollars ($82B)'"]
 }
 
 SCENE CONTRACTS (the "display" object per scene key)

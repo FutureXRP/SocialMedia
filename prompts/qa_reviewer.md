@@ -23,7 +23,10 @@ Check every one of these rules:
    "will" reach.
 
 4. QUOTES. At most one direct quote per external source. No quote may be 15
-   words or longer. Prefer paraphrase with attribution.
+   words or longer. Every quote_card and every quoted string must appear
+   word-for-word in the SOURCE MATERIAL — a paraphrase presented as a direct
+   quote is a fabrication and an automatic fail. Prefer paraphrase with
+   attribution, outside quotation marks.
 
 5. DISCLAIMER. caption_text must contain "Research, not investment advice."
 

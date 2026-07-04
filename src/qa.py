@@ -37,6 +37,55 @@ SCENE_KEYS = {
 
 _NUM_NORM = re.compile(r"[,$\s]")
 
+# Voiceover numbers are spelled out for TTS ("eighty-two billion dollars");
+# sources carry digits ("$82 billion"). Parse word-numbers so provenance
+# matching compares like with like.
+_UNITS = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+          "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+          "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14,
+          "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18,
+          "nineteen": 19}
+_TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60,
+         "seventy": 70, "eighty": 80, "ninety": 90}
+
+
+def words_to_values(text):
+    """Extract every numeric quantity in `text` as a float mantissa.
+    Scale words (billion, percent, basis points, dollars) end a number but
+    do not scale it — matching is done on mantissas, which is what the
+    digit form in a source carries ("$82 billion" → 82)."""
+    tokens = re.findall(r"[a-z]+|\d+(?:\.\d+)?", text.lower().replace("-", " "))
+    values = []
+    cur, active, dec, div = 0.0, False, False, 0.1
+
+    def flush():
+        nonlocal cur, active, dec, div
+        if active:
+            values.append(cur)
+        cur, active, dec, div = 0.0, False, False, 0.1
+
+    for tok in tokens:
+        if re.fullmatch(r"\d+(?:\.\d+)?", tok):
+            flush()
+            values.append(float(tok))
+        elif tok == "point" and active:
+            dec = True
+        elif dec and tok in _UNITS and _UNITS[tok] <= 9:
+            cur += _UNITS[tok] * div
+            div /= 10
+        elif not dec and tok in _UNITS:
+            cur += _UNITS[tok]
+            active = True
+        elif not dec and tok in _TENS:
+            cur += _TENS[tok]
+            active = True
+        elif not dec and tok == "hundred" and active:
+            cur *= 100
+        else:
+            flush()
+    flush()
+    return values
+
 
 def _script_spoken_text(script):
     parts = [seg.get("voiceover", "") for seg in script.get("segments", [])]
@@ -81,25 +130,32 @@ def normalize_number(s):
     return _NUM_NORM.sub("", s).lower()
 
 
+def _format_value(v):
+    return str(int(v)) if float(v).is_integer() else f"{v:g}"
+
+
+def _entry_traceable(entry, haystack):
+    """True if every numeric quantity in the entry (digit or spelled-out
+    form) appears in the normalized haystack."""
+    quantities = re.findall(r"\d+(?:\.\d+)?", normalize_number(entry))
+    quantities += [_format_value(v) for v in words_to_values(entry)]
+    if not quantities:
+        return True  # nothing checkable (e.g. "a majority")
+    return all(q in haystack for q in set(quantities))
+
+
 def check_spoken_numbers(script, source_text, canonical):
     """Every spoken number must resolve to source material or canonical.json,
-    matched on normalized strings."""
+    matched on normalized strings. Spelled-out voiceover forms are converted
+    to digits before matching so "eighty-two billion" traces to "$82B"."""
     haystack = normalize_number(source_text + json.dumps(canonical))
     violations = []
     for entry in script.get("spoken_numbers", []):
-        needle = normalize_number(str(entry))
-        # strip common verbal decoration so "About $2 billion" still matches
-        needle = re.sub(r"^(about|roughly|over|nearly|around)", "", needle)
-        core = re.findall(r"\d[\d.,]*[kmbt]?(?:illion)?[+]?|\d+", needle) or [needle]
-        for token in core:
-            token = token.replace("billion", "b").replace("million", "m") \
-                         .replace("trillion", "t").replace("illion", "")
-            if token and token not in haystack:
-                violations.append({
-                    "rule": "1 numbers",
-                    "detail": f"spoken number not found in source or canonical: {entry!r}",
-                })
-                break
+        if not _entry_traceable(str(entry), haystack):
+            violations.append({
+                "rule": "1 numbers",
+                "detail": f"spoken number not found in source or canonical: {entry!r}",
+            })
     return violations
 
 
