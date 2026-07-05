@@ -101,10 +101,11 @@ def generate_script(duration_target, format_key, source_text, canonical,
             + json.dumps(qa_feedback, indent=2)
         )
 
+    # no temperature: Opus 4.7+ rejects sampling params; discipline comes
+    # from the prompt and the QA pass
     response = client.messages.create(
         model=settings["anthropic_model"],
         max_tokens=8000,
-        temperature=1.0,
         system=SCRIPTWRITER_PROMPT.read_text(),
         messages=[{"role": "user", "content": user_message}],
     )
