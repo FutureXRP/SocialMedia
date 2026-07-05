@@ -8,12 +8,12 @@ LINE_STAGGER = 0.9
 def render(draw, t_local, duration, display, ctx):
     colors = ctx["brand"]["colors"]
     x0, y0, x1, y1 = ctx["content_box"]
-    font = ctx["sans"](60, bold=True)
+    font = ctx["sans"](72, bold=True)
 
     lines = display.get("lines", [])[:3]
     emphasis = display.get("emphasis_index", 0)
 
-    row_h = 80
+    row_h = 94
     blocks = [wrap_text(s, font, x1 - x0 - 40) for s in lines]
     total_rows = sum(len(b) for b in blocks) + (len(blocks) - 1)
     y = (y0 + y1) // 2 - (total_rows * row_h) // 2

@@ -35,6 +35,14 @@ Check every one of these rules:
    negatively. No quotes attributed to real people that do not appear in the
    source material.
 
+7. FLOW. The hook must work for a stranger with zero context: no "our
+   model", "the framework", "critics say", or references to debates the
+   viewer doesn't know exist, within the first two segments. The script
+   must follow the arc hook → setup (the viewer feels the problem) →
+   turn (the insight, on a data scene) → proof → payoff. Fail scripts
+   that open by rebutting an argument nobody set up, or that read as a
+   wall of assertions with no build.
+
 Work through every rule above, then return ONLY valid JSON, no markdown
 fences, in exactly this shape:
 {
@@ -46,7 +54,7 @@ fences, in exactly this shape:
   "verdict": "pass" | "fail"
 }
 
-- Exactly one entry per rule (1–6). "status" is your final finding for that
+- Exactly one entry per rule (1–7). "status" is your final finding for that
   rule after all analysis.
 - If your analysis of a rule concludes "traceable", "compliant",
   "withdrawn", or "no violation", that rule's status is "pass". Never

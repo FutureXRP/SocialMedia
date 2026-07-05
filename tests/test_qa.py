@@ -186,6 +186,40 @@ def test_duration_target_constrains_format_choice():
         assert lo <= 60 <= hi, f"{key} cannot deliver a 60s video"
 
 
+def test_flow_rejects_consecutive_same_scene():
+    # regression: the derivatives video was three declaration cards in a row
+    from qa import check_flow
+    poisoned = copy.deepcopy(FIXTURE)
+    poisoned["segments"][2]["scene"] = "declaration"
+    poisoned["segments"][3]["scene"] = "declaration"
+    violations = check_flow(poisoned)
+    assert any("vary the visual" in v["detail"] for v in violations)
+
+
+def test_flow_requires_a_data_scene():
+    from qa import check_flow
+    poisoned = copy.deepcopy(FIXTURE)
+    for seg in poisoned["segments"][1:-1]:
+        seg["scene"] = "declaration"
+    violations = check_flow(poisoned)
+    assert any("no stat_counter or chart" in v["detail"] for v in violations)
+
+
+def test_flow_rejects_insider_hook():
+    # regression: "Someone said our model ignores..." means nothing cold
+    from qa import check_flow
+    poisoned = copy.deepcopy(FIXTURE)
+    poisoned["segments"][0]["voiceover"] = \
+        "Someone said our model ignores the derivatives market."
+    violations = check_flow(poisoned)
+    assert any("cold viewer" in v["detail"] for v in violations)
+
+
+def test_fixture_passes_flow():
+    from qa import check_flow
+    assert check_flow(FIXTURE) == []
+
+
 def test_missing_disclaimer_fails():
     poisoned = copy.deepcopy(FIXTURE)
     poisoned["caption_text"] = "No disclaimer here #XRP"

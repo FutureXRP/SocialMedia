@@ -13,8 +13,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-from captions import phrase_at_time
-from scenes import get_scene, base_background, wrap_text, text_width
+from captions import event_at_time
+from scenes import get_scene, base_background, smoothstep, text_width
 
 WORDS_PER_MINUTE = 150
 MIN_SEGMENT_SECONDS = 2.5
@@ -94,14 +94,57 @@ def draw_static_chrome(img, ctx):
     d.rectangle([w - aw - 56, 106, w - 24, 150], outline=tuple(colors["amber"]), width=2)
     d.text((w - aw - 40, 116), ai, font=ai_font, fill=tuple(colors["amber"]))
 
-    cx0, cy0, cx1, cy1 = ctx["caption_box"]
-    d.rounded_rectangle([cx0 - 12, cy0 - 12, cx1 + 12, cy1 + 12], radius=24,
-                        fill=tuple(colors["panel"]), outline=tuple(colors["grid"]),
-                        width=2)
+    # captions draw boxless (karaoke style) — no panel here
     return img
 
 
-def draw_dynamic_chrome(d, ctx, t_global, total_duration, caption_events):
+def draw_karaoke_caption(d, ctx, event, t):
+    """TikTok-native captions: big, boxless, outlined, with the word being
+    spoken highlighted — driven by the character-level alignment."""
+    colors = ctx["brand"]["colors"]
+    cx0, cy0, cx1, cy1 = ctx["caption_box"]
+    font = ctx["sans"](58, bold=True)
+    words = event.get("words") or [{"text": w, "start": event["start"]}
+                                   for w in event["text"].split()]
+
+    space = text_width(font, " ")
+    max_w = cx1 - cx0
+    lines, cur, cur_w = [], [], 0
+    for wd in words:
+        ww = text_width(font, wd["text"])
+        if cur and cur_w + space + ww > max_w:
+            lines.append(cur)
+            cur, cur_w = [wd], ww
+        else:
+            cur.append(wd)
+            cur_w += (space if len(cur) > 1 else 0) + ww
+    if cur:
+        lines.append(cur)
+    lines = lines[:3]
+
+    active = -1
+    for i, wd in enumerate(words):
+        if wd["start"] <= t:
+            active = i
+    row_h = 76
+    y = (cy0 + cy1) // 2 - (len(lines) * row_h) // 2
+    outline = tuple(colors["bg"])
+    idx = 0
+    for line in lines:
+        lw = sum(text_width(font, wd["text"]) for wd in line) \
+            + space * (len(line) - 1)
+        x = (cx0 + cx1 - lw) // 2
+        for wd in line:
+            color = tuple(colors["green"]) if idx == active else tuple(colors["ink"])
+            d.text((x, y), wd["text"], font=font, fill=color,
+                   stroke_width=6, stroke_fill=outline)
+            x += text_width(font, wd["text"]) + space
+            idx += 1
+        y += row_h
+
+
+def draw_dynamic_chrome(d, ctx, t_global, total_duration, caption_events,
+                        seg_i=0, n_segments=1):
     brand = ctx["brand"]
     colors = brand["colors"]
     w, h = brand["canvas"]
@@ -112,23 +155,24 @@ def draw_dynamic_chrome(d, ctx, t_global, total_duration, caption_events):
     else:
         d.ellipse([56, 126, 84, 154], outline=tuple(colors["green"]), width=3)
 
+    # segment ticks under the header: where you are in the video
+    if n_segments > 1:
+        tick_w = max(12, min(64, (w - 220) // n_segments - 10))
+        for i in range(n_segments):
+            x = 110 + i * (tick_w + 10)
+            color = tuple(colors["green"]) if i <= seg_i else tuple(colors["grid"])
+            d.rectangle([x, 206, x + tick_w, 212], fill=color)
+
     if brand["chrome"].get("progress_bar", True) and total_duration > 0:
         frac = min(1.0, t_global / total_duration)
         d.rectangle([0, h - 14, w, h - 6], fill=tuple(colors["grid"]))
         d.rectangle([0, h - 14, int(w * frac), h - 6], fill=tuple(colors["green"]))
+        tip = int(w * frac)
+        d.ellipse([tip - 8, h - 18, tip + 8, h - 2], fill=tuple(colors["amber"]))
 
-    text = phrase_at_time(caption_events, t_global)
-    if text:
-        cx0, cy0, cx1, cy1 = ctx["caption_box"]
-        cap_font = ctx["sans"](46, bold=True)
-        rows = wrap_text(text, cap_font, cx1 - cx0 - 40)[:3]
-        row_h = 62
-        y = (cy0 + cy1) // 2 - (len(rows) * row_h) // 2
-        for row in rows:
-            rw = text_width(cap_font, row)
-            d.text(((cx0 + cx1 - rw) // 2, y), row, font=cap_font,
-                   fill=tuple(colors["ink"]))
-            y += row_h
+    event = event_at_time(caption_events, t_global)
+    if event:
+        draw_karaoke_caption(d, ctx, event, t_global)
 
 
 def render_frames(script, brand, segment_times, caption_events, frames_dir,
@@ -151,20 +195,31 @@ def render_frames(script, brand, segment_times, caption_events, frames_dir,
         bg = builder(seg.get("display", {}), ctx)
         backgrounds.append(draw_static_chrome(bg, ctx))
 
+    def compose(i, t_local):
+        img = backgrounds[i].copy()
+        seg = segments[i]
+        start, end = segment_times[i]
+        get_scene(seg["scene"]).render(ImageDraw.Draw(img), t_local,
+                                       end - start, seg.get("display", {}), ctx)
+        return img
+
+    TRANSITION = 0.3  # cross-fade between scenes; cuts feel less slideshow
     ext = "jpg" if frame_format == "jpeg" else "png"
     seg_i = 0
     for f in range(total_frames):
         t = f / fps
         while seg_i + 1 < len(segments) and t >= segment_times[seg_i][1]:
             seg_i += 1
-        start, end = segment_times[seg_i]
-        seg = segments[seg_i]
+        start, _end = segment_times[seg_i]
 
-        img = backgrounds[seg_i].copy()
-        d = ImageDraw.Draw(img)
-        get_scene(seg["scene"]).render(d, t - start, end - start,
-                                       seg.get("display", {}), ctx)
-        draw_dynamic_chrome(d, ctx, t, total_duration, caption_events)
+        img = compose(seg_i, t - start)
+        if seg_i > 0 and t - start < TRANSITION:
+            prev_start, prev_end = segment_times[seg_i - 1]
+            prev = compose(seg_i - 1, prev_end - prev_start)
+            img = Image.blend(prev, img, smoothstep((t - start) / TRANSITION))
+
+        draw_dynamic_chrome(ImageDraw.Draw(img), ctx, t, total_duration,
+                            caption_events, seg_i, len(segments))
 
         path = frames_dir / f"f{f:06d}.{ext}"
         if ext == "jpg":

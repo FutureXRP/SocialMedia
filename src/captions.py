@@ -59,8 +59,8 @@ def find_char_index(alignment, offset):
     return min(offset, len(alignment["characters"]) - 1)
 
 
-def phrase_at_time(caption_events, t):
-    """Return the active caption text at time t (binary search)."""
+def event_at_time(caption_events, t):
+    """Return the active caption event at time t (binary search), or None."""
     starts = [e["start"] for e in caption_events]
     i = bisect_left(starts, t)
     if i > 0 and (i == len(starts) or starts[i] > t):
@@ -68,8 +68,14 @@ def phrase_at_time(caption_events, t):
     if 0 <= i < len(caption_events):
         e = caption_events[i]
         if e["start"] <= t < e["end"]:
-            return e["text"]
-    return ""
+            return e
+    return None
+
+
+def phrase_at_time(caption_events, t):
+    """Return the active caption text at time t."""
+    e = event_at_time(caption_events, t)
+    return e["text"] if e else ""
 
 
 def build_caption_events(concatenated_text, segments_offsets, alignment):
@@ -90,10 +96,20 @@ def build_caption_events(concatenated_text, segments_offsets, alignment):
             cursor = local + len(phrase)
             a = find_char_index(alignment, seg_start + local)
             b = find_char_index(alignment, seg_start + local + len(phrase) - 1)
+            # per-word start times drive the karaoke highlight
+            words, wpos = [], 0
+            for w in phrase.split():
+                at = phrase.find(w, wpos)
+                wpos = at + len(w)
+                wi = find_char_index(alignment, seg_start + local + at)
+                words.append({"text": w,
+                              "start": _char_time(alignment, wi,
+                                                  "character_start_times_seconds")})
             events.append({
                 "text": phrase,
                 "start": _char_time(alignment, a, "character_start_times_seconds"),
                 "end": _char_time(alignment, b, "character_end_times_seconds"),
+                "words": words,
             })
     # captions must not overlap or gap visibly: extend each to the next start
     for i in range(len(events) - 1):
@@ -115,6 +131,9 @@ def build_caption_events_estimated(segments, segment_times):
         t = start
         for p in phrases:
             dur = (end - start) * len(p.split()) / total_words
-            events.append({"text": p, "start": t, "end": t + dur})
+            wlist = p.split()
+            words = [{"text": w, "start": t + dur * i / len(wlist)}
+                     for i, w in enumerate(wlist)]
+            events.append({"text": p, "start": t, "end": t + dur, "words": words})
             t += dur
     return events

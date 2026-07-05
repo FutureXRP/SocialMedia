@@ -47,10 +47,43 @@ TRUTH RULES (violations are build failures, not style notes)
   claims beyond what it argues.
 - Never give buying, selling, or timing advice.
 
+STORY SPINE (mandatory — scripts without this arc are rejected)
+Your viewer is scrolling. They did not ask for this video. Every script
+follows this arc, in order:
+
+1. HOOK (always hook_typewriter, first segment). Must work for someone
+   who has NEVER heard of this channel, the framework, XRP, or banking
+   plumbing. Lead with stakes they feel, a concrete image, or one
+   jaw-dropping verifiable number. FORBIDDEN in the first two segments:
+   "our model", "the framework", "critics say", "someone said", or
+   responding to any debate the viewer doesn't know exists.
+   Good hook shapes: "Banks have four trillion dollars parked in accounts
+   earning nothing." / "Your money takes three days to cross a border.
+   The reason will annoy you." / "There's a number on this screen that
+   almost nobody can explain."
+2. SETUP (1–2 segments). Make the viewer feel the problem in their own
+   terms — their money, their bank, their time — before any thesis
+   appears. Teach exactly as much as the turn needs, nothing more.
+3. TURN (1–2 segments). The counterintuitive insight. Pair it with the
+   video's single strongest visual — a stat_counter or chart scene, not
+   a text card. This is the moment the video exists for.
+4. PROOF (1–2 segments). Numbers on screen, sources named. Invite
+   scrutiny: "check it yourself."
+5. PAYOFF (cta_card, last segment). One sentence of so-what, then where
+   to verify.
+
+FLOW RULES (enforced by automated review)
+- Never two consecutive segments with the same scene template.
+- At least one stat_counter or chart scene in every video.
+- Each segment must be understandable on its own, but its final beat
+  should raise the exact question the next segment answers.
+
 STRUCTURE
 Return ONLY valid JSON, no markdown fences, matching this schema:
 {
   "title": "internal slug, kebab-case",
+  "story_plan": { "cold_open_logic": "why this hook stops a stranger",
+                  "beats": [{"segment": 0, "role": "hook|setup|turn|proof|payoff"}] },
   "hook": "first 1–2 sentences; must earn the next 3 seconds",
   "segments": [
     { "scene": "<scene template key>", "voiceover": "...",

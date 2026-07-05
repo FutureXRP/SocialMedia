@@ -30,5 +30,10 @@ def render(draw, t_local, duration, display, ctx):
         draw.rectangle([x0, by, x0 + max(w, 4), by + bar_h], fill=tuple(colors["green"]))
         if grow >= 1.0:
             vd = bar.get("value_display", "")
-            vx = min(x0 + w + 18, x1 - text_width(value_font, vd))
-            draw.text((vx, by + 12), vd, font=value_font, fill=tuple(colors["amber"]))
+            tw = text_width(value_font, vd)
+            if x0 + w + 18 + tw <= x1:  # beside the bar
+                draw.text((x0 + w + 18, by + 12), vd, font=value_font,
+                          fill=tuple(colors["amber"]))
+            else:  # bar nearly full-width: draw inside it, dark on green
+                draw.text((x0 + w - tw - 18, by + 12), vd, font=value_font,
+                          fill=tuple(colors["bg"]))

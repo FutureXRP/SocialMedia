@@ -244,6 +244,36 @@ def check_disclaimer(script):
     return []
 
 
+DATA_SCENES = {"stat_counter", "chart_sqrt", "chart_bar", "chart_line"}
+INSIDER_OPENERS = ["our model", "the framework", "critics say", "someone said",
+                   "people say", "skeptics claim"]
+
+
+def check_flow(script):
+    """Structural watchability: visual variety, at least one data scene,
+    and a hook that works for a viewer with zero context."""
+    violations = []
+    scenes = [s.get("scene") for s in script.get("segments", [])]
+    for i, (a, b) in enumerate(zip(scenes, scenes[1:])):
+        if a == b:
+            violations.append({"rule": "8 flow",
+                               "detail": f"segments {i} and {i + 1} both use "
+                                         f"{a!r} — vary the visual"})
+    if not DATA_SCENES & set(scenes):
+        violations.append({"rule": "8 flow",
+                           "detail": "no stat_counter or chart scene anywhere "
+                                     "— the turn needs a visual"})
+    opening = " ".join(s.get("voiceover", "")
+                       for s in script.get("segments", [])[:2]).lower()
+    for phrase in INSIDER_OPENERS:
+        if phrase in opening:
+            violations.append({"rule": "8 flow",
+                               "detail": f"first two segments say {phrase!r} — "
+                                         f"a cold viewer has no idea what that "
+                                         f"refers to; open with stakes instead"})
+    return violations
+
+
 def programmatic_checks(script, source_text, canonical, duration_target=None):
     violations = validate_schema(script)
     if violations:
@@ -254,6 +284,7 @@ def programmatic_checks(script, source_text, canonical, duration_target=None):
     violations += check_quotes(script)
     violations += check_disclaimer(script)
     violations += check_pacing(script, duration_target)
+    violations += check_flow(script)
     return violations
 
 
