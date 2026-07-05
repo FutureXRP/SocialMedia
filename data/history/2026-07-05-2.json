@@ -1,0 +1,131 @@
+{
+  "date": "2026-07-05",
+  "topic": {
+    "type": "evergreen",
+    "key": "sqrt_impact_law",
+    "title": "The square-root impact law"
+  },
+  "format": "one_chart_one_claim",
+  "script": {
+    "title": "sqrt-impact-law-explainer",
+    "story_plan": {
+      "cold_open_logic": "Everyone has seen a price move when someone buys a lot of something \u2014 this hook makes that physical and immediate before any crypto context appears.",
+      "beats": [
+        {
+          "segment": 0,
+          "role": "hook"
+        },
+        {
+          "segment": 1,
+          "role": "setup"
+        },
+        {
+          "segment": 2,
+          "role": "turn"
+        },
+        {
+          "segment": 3,
+          "role": "proof"
+        },
+        {
+          "segment": 4,
+          "role": "payoff"
+        }
+      ]
+    },
+    "hook": "Buy a little, the price barely moves. Buy a lot, and the price jumps \u2014 but not as much as you'd expect.",
+    "segments": [
+      {
+        "scene": "hook_typewriter",
+        "voiceover": "Buy a little, the price barely moves. Buy a lot, and the price jumps, but not as much as you'd expect.",
+        "display": {
+          "line": "More buying = higher price. But how much higher?"
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "Think of it like scooping water from a pool. The first scoop is easy. Each scoop after gets harder. You're always pulling, but the pool never drains at the same rate.",
+        "display": {
+          "lines": [
+            "First scoop: easy.",
+            "Tenth scoop: much harder.",
+            "The pool pushes back."
+          ],
+          "emphasis_index": 2
+        }
+      },
+      {
+        "scene": "chart_sqrt",
+        "voiceover": "Markets work the same way. Double the buying pressure, and the price doesn't double, it follows a square-root curve. It rises, but slower and slower. This is called the square-root impact law. It's how traders actually model price movement.",
+        "display": {
+          "annotation": "Price impact grows \u2014 but flattens as volume rises",
+          "sub_lines": [
+            "Impact \u221d \u221a Volume",
+            "Published inputs at xrpvaluation.info"
+          ]
+        }
+      },
+      {
+        "scene": "stat_counter",
+        "voiceover": "The published framework plugs real numbers into this law: two billion dollars in daily flow, a float of twenty-five billion XRP. The math produces a derived anchor from published inputs, five hundred and eighty-nine dollars. Not a promise. A calculation you can check yourself at xrpvaluation.info.",
+        "display": {
+          "label": "Derived anchor from published inputs",
+          "value": "$589",
+          "beats": [
+            "Daily flow: $2,000,000,000",
+            "Float: 25,000,000,000 XRP",
+            "Square-root impact law applied"
+          ]
+        }
+      },
+      {
+        "scene": "cta_card",
+        "voiceover": "The number only means something if you understand the math behind it. See every input, laid out plainly, at xrpvaluation.info.",
+        "display": {
+          "headline": "See every input for yourself.",
+          "site": "xrpvaluation.info"
+        }
+      }
+    ],
+    "cta_voiceover": "The number only means something if you understand the math behind it. See every input, laid out plainly, at xrpvaluation.info.",
+    "caption_text": "Markets don't move in straight lines \u2014 they follow a square-root curve. That one math rule is the core of the published XRP valuation framework. Here's what it actually means, in plain English. See every input at xrpvaluation.info. Research, not investment advice. #XRP #CrossBorderPayments #CryptoExplained #BridgeAsset #XRPValuation",
+    "spoken_numbers": [
+      "two billion dollars ($2,000,000,000)",
+      "twenty-five billion XRP (25,000,000,000)",
+      "five hundred and eighty-nine dollars ($589)"
+    ]
+  },
+  "qa_verdicts": [
+    {
+      "verdict": "pass",
+      "violations": []
+    }
+  ],
+  "durations": {
+    "total": 54.846,
+    "segments": [
+      [
+        0.0,
+        6.234
+      ],
+      [
+        6.234,
+        15.324
+      ],
+      [
+        15.324,
+        28.711
+      ],
+      [
+        28.711,
+        47.195
+      ],
+      [
+        47.195,
+        54.846
+      ]
+    ]
+  },
+  "word_count": 157,
+  "render_seconds": 87.9
+}

@@ -34,11 +34,6 @@
     },
     {
       "type": "evergreen",
-      "key": "sqrt_impact_law",
-      "title": "The square-root impact law"
-    },
-    {
-      "type": "evergreen",
       "key": "stablecoin_insufficiency",
       "title": "Stablecoin insufficiency"
     },
@@ -84,6 +79,12 @@
       "type": "post",
       "key": "derivatives-and-spot",
       "title": "The derivatives market doesn't break the model. It completes it.",
+      "date": "2026-07-05"
+    },
+    {
+      "type": "evergreen",
+      "key": "sqrt_impact_law",
+      "title": "The square-root impact law",
       "date": "2026-07-05"
     }
   ]
