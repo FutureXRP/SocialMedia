@@ -62,3 +62,15 @@ To queue an external article, add to `data/topics.json` queue:
 format. Unfetchable topics are skipped (up to 4) instead of failing the run.
 NOTE: verify `settings.features` URLs match the live site paths — they were
 seeded as best guesses (/terminal, /calculator).
+
+## TikTok auto-posting (2026-07-05, owner overrode spec §13)
+
+`src/tiktok.py` direct-posts via the official Content Posting API after the
+Release. Gated on `settings.tiktok_post` + `TIKTOK_CLIENT_KEY` secret.
+One-time setup: developer app at developers.tiktok.com → run
+`scripts/tiktok_auth.py` → add TIKTOK_CLIENT_KEY / TIKTOK_CLIENT_SECRET /
+TIKTOK_REFRESH_TOKEN secrets. Unaudited apps post SELF_ONLY (private);
+after TikTok audit approval set `settings.tiktok_privacy` to
+"PUBLIC_TO_EVERYONE". `is_aigc` is always sent (§14). A failed post opens a
+notice Issue but does not fail the run. The QA firewall is now the ONLY
+editorial gate — never weaken it.

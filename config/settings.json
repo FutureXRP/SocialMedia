@@ -7,6 +7,8 @@
   "elevenlabs_model_id": "eleven_flash_v2_5",
   "elevenlabs_output_format": "mp3_44100_128",
   "email_delivery": false,
+  "tiktok_post": true,
+  "tiktok_privacy": "SELF_ONLY",
   "ambient_bed": false,
   "ambient_bed_db": -22,
   "frame_format": "png",

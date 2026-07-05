@@ -2,7 +2,13 @@
 
 **Project:** Automated daily short-form video generator for xrpvaluation.info
 **Owner:** Matt Blair (GitHub: FutureXRP)
-**Deliverable per run:** One 60–300 second vertical MP4 (1080×1920, 30fps, H.264 + AAC) with synced voiceover and burned-in captions, plus a ready-to-paste caption/hashtag text file. Human uploads to TikTok manually — there is NO TikTok API integration in this project. Do not build one.
+**Deliverable per run:** One 60–300 second vertical MP4 (1080×1920, 30fps, H.264 + AAC) with synced voiceover and burned-in captions, plus a ready-to-paste caption/hashtag text file.
+
+> **Amended 2026-07-05 (owner decision):** the original "no TikTok API"
+> rule is lifted. The pipeline now direct-posts via TikTok's official
+> Content Posting API (`src/tiktok.py`), private-only until the developer
+> app passes TikTok's audit. The QA firewall (§7) is therefore the only
+> editorial gate before publication and may never be weakened.
 
 ---
 
@@ -326,8 +332,10 @@ Conventions: complete file replacements over surgical patches when revising; one
 
 ## 13. EXPLICIT NON-GOALS
 
-- No TikTok API, no OAuth, no third-party posting wrapper. Manual upload is the editorial review step, by design.
-- No autoposting to any platform. (The MP4 is 9:16 and equally uploadable to Shorts/Reels by hand.)
+- ~~No TikTok API, no OAuth, no third-party posting wrapper.~~ **Amended
+  2026-07-05:** TikTok direct-posting via the official Content Posting API
+  is in (`src/tiktok.py` + `scripts/tiktok_auth.py`). Other platforms
+  (Shorts/Reels) remain manual-upload.
 - No Higgsfield/generative video in v1. The scene system is deterministic and cheap. A `broll` scene type that overlays a provided MP4 clip may be added in v2 — leave a stub comment in scenes/__init__.py.
 - No live price data in v1. Prices go stale between render (2 AM) and post (morning); the framework's content doesn't need them.
 - No per-video human configuration. If the pipeline needs Matt's input to run, the build has failed its one requirement.

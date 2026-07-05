@@ -222,6 +222,24 @@ def run_pipeline(args):
     if settings.get("email_delivery"):
         deliver.send_email(release_url, script.get("caption_text", ""), run_date)
 
+    import tiktok
+    if tiktok.enabled(settings):
+        # a TikTok hiccup must not kill the run — the video and Release
+        # exist; open a notice so Matt posts manually that day
+        try:
+            publish_id, tk_status = tiktok.post_video(
+                mp4_path, script.get("caption_text", ""), settings)
+            print(f"[deliver] tiktok: {tk_status} ({publish_id})")
+        except Exception as e:
+            print(f"[deliver] tiktok post failed: {e}")
+            deliver.open_notice_issue(
+                f"TikTok post failed {run_date.isoformat()}",
+                f"The video was produced and released, but the TikTok "
+                f"direct post failed:\n\n```\n{e}\n```\n\n"
+                f"Post it manually from the Release: {release_url}")
+    elif settings.get("tiktok_post"):
+        print("[deliver] tiktok_post enabled but TIKTOK_* secrets missing; skipped")
+
     _set_stage("history")
     deliver.write_history(run_date, topic, format_key, script, qa_verdicts,
                           {"total": total_duration,

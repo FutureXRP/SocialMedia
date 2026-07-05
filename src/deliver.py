@@ -58,6 +58,17 @@ def create_release(run_date, mp4_path, caption_path, script, format_key,
     return release["html_url"]
 
 
+def open_notice_issue(title, body):
+    """Non-fatal notice (e.g. TikTok post failed but the video exists) —
+    the run continues, but nothing fails silently."""
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo or not os.environ.get("GITHUB_TOKEN"):
+        print(f"[deliver] NOTICE (no GitHub context): {title}\n{body}")
+        return
+    requests.post(f"{GITHUB_API}/repos/{repo}/issues", headers=_gh_headers(),
+                  json={"title": title, "body": body}, timeout=60).raise_for_status()
+
+
 def send_email(release_url, caption_text, run_date):
     """Send the release link (NOT the file — too large) via Resend."""
     api_key = os.environ.get("RESEND_API_KEY")
