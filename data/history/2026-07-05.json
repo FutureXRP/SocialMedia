@@ -1,0 +1,113 @@
+{
+  "date": "2026-07-05",
+  "topic": {
+    "type": "post",
+    "slug": "derivatives-and-spot",
+    "title": "The derivatives market doesn't break the model. It completes it."
+  },
+  "format": "one_chart_one_claim",
+  "script": {
+    "title": "derivatives-complete-the-model",
+    "hook": "Someone said our model ignores the derivatives market. They were half right.",
+    "segments": [
+      {
+        "scene": "hook_typewriter",
+        "voiceover": "Someone said our model ignores the derivatives market. They were half right.",
+        "display": {
+          "line": "Someone said our model ignores the derivatives market. They were half right."
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "For cross-border settlement, XRP gets bought and sold on spot exchanges, places like Bitstamp and Bitso. That is where the payment actually executes. Derivatives, the futures contracts on Binance, never touch that flow. So spot-only is the right input. Not a flaw. A deliberate choice.",
+        "display": {
+          "lines": [
+            "Settlement executes on SPOT",
+            "Derivatives never touch it",
+            "Spot-only is correct"
+          ],
+          "emphasis_index": 2
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "Here is the counterintuitive part. A deep derivatives market actually helps settlement. Market makers take on risk providing spot depth. They hedge that risk in futures. Lower hedging cost means tighter spreads for settlement flows. Derivatives deepen the very spot market the model relies on.",
+        "display": {
+          "lines": [
+            "Derivatives \u2192 cheaper hedging",
+            "Cheaper hedging \u2192 deeper spot",
+            "Deeper spot \u2192 better settlement"
+          ],
+          "emphasis_index": 2
+        }
+      },
+      {
+        "scene": "declaration",
+        "voiceover": "And the volatility number we use, five percent daily, already reflects a market where derivatives are live. Both assumptions run conservative. The model is harder to satisfy than the real market would be.",
+        "display": {
+          "lines": [
+            "5% volatility",
+            "already includes",
+            "derivatives activity"
+          ],
+          "emphasis_index": 0
+        }
+      },
+      {
+        "scene": "cta_card",
+        "voiceover": "The full framework is at xrpvaluation.info. Research, not investment advice.",
+        "display": {
+          "headline": "Read the full framework",
+          "site": "xrpvaluation.info"
+        }
+      }
+    ],
+    "cta_voiceover": "The full framework is at xrpvaluation.info. Research, not investment advice.",
+    "caption_text": "The derivatives market doesn't break the XRP settlement model \u2014 it completes it. Spot-only volume is the correct input because that's where regulated settlement actually executes. Derivatives make that spot market deeper and cheaper. Both work together. Full breakdown at xrpvaluation.info. Research, not investment advice. #XRP #CrossBorderPayments #CryptoEducation #XRPValuation #SettlementTech",
+    "spoken_numbers": [
+      "five percent daily (5%)"
+    ]
+  },
+  "qa_verdicts": [
+    {
+      "verdict": "fail",
+      "violations": [
+        {
+          "rule": "7 pacing",
+          "detail": "voiceover is 188 words \u2248 75s spoken; the 60s target requires 112\u2013180 words. Cut or expand to fit."
+        }
+      ]
+    },
+    {
+      "verdict": "pass",
+      "violations": []
+    }
+  ],
+  "durations": {
+    "total": 54.753,
+    "segments": [
+      [
+        0.0,
+        3.959
+      ],
+      [
+        3.959,
+        21.026
+      ],
+      [
+        21.026,
+        37.199
+      ],
+      [
+        37.199,
+        48.67
+      ],
+      [
+        48.67,
+        54.753
+      ]
+    ]
+  },
+  "word_count": 145,
+  "render_seconds": 89.4
+}

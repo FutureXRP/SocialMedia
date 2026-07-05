@@ -79,6 +79,12 @@
       "key": "jit-sourcing",
       "title": "Why <em>just-in-time sourcing</em> doesn't kill the price argument",
       "date": "2026-07-04"
+    },
+    {
+      "type": "post",
+      "key": "derivatives-and-spot",
+      "title": "The derivatives market doesn't break the model. It completes it.",
+      "date": "2026-07-05"
     }
   ]
 }
