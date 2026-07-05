@@ -1,5 +1,18 @@
 # xrpv-daily-video — pointer for future sessions
 
+## PROJECT STATUS: SHELVED (owner decision, 2026-07-05)
+
+The owner judged overall output quality insufficient and shelved the
+project. All scheduled production is disabled (workflow_dispatch remains
+for manual test runs). Nothing is deleted; the pipeline is functional
+end-to-end and produced three released videos (see Releases + data/history).
+
+If revived, do NOT resume by tweaking prompts — the owner's verdict was
+"it's the entire build." Start by collecting reference TikToks the owner
+actually wants to emulate, agree on a visual/writing target, and evaluate
+whether the deterministic Pillow card renderer can hit it or whether the
+visual layer needs replacing (b-roll / motion graphics / generated video).
+
 The full build framework lives in **`readme.md`** (XRPV_DAILY_VIDEO.md). Read
 it before changing anything; its truth rules and the QA firewall (§7/§14) are
 non-negotiable. Highlights:
