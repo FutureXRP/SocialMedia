@@ -155,7 +155,17 @@ def select_topic(topics, posts, today=None, override=None, exclude=()):
                 and not _used_recently(topics, entry["key"], today):
             return {"type": "evergreen", "key": entry["key"],
                     "title": entry.get("title", entry["key"])}
-    raise RuntimeError("no eligible topic: queue exhausted and all topics used within 14 days")
+    # last resort: a missed daily video is worse than bending the 14-day
+    # rotation rule (matters at 2 videos/day) — take the stalest used
+    # evergreen even if it ran recently
+    stale = sorted((e for e in topics.get("used", [])
+                    if e.get("type") == "evergreen" and e["key"] not in exclude),
+                   key=lambda e: e.get("date", ""))
+    if stale:
+        entry = stale[0]
+        return {"type": "evergreen", "key": entry["key"],
+                "title": entry.get("title", entry["key"])}
+    raise RuntimeError("no eligible topic: queue empty and nothing recyclable")
 
 
 def mark_used(topics, topic, today=None):

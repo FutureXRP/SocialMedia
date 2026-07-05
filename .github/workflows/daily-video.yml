@@ -2,7 +2,10 @@ name: daily-video
 
 on:
   schedule:
-    - cron: "0 7 * * *"   # 07:00 UTC = 1–2 AM Tulsa
+    - cron: "0 7 * * *"   # 07:00 UTC = 1–2 AM Tulsa → ready for morning post
+    - cron: "0 16 * * *"  # 16:00 UTC = 11 AM Tulsa → ready for evening post
+                          # (audience-launch week only; self-disables after
+                          # 2026-07-12, see guard in the produce step)
   workflow_dispatch:
     inputs:
       topic_override:
@@ -59,6 +62,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
+          if [ "${{ github.event.schedule }}" = "0 16 * * *" ] && [ "$(date -u +%Y%m%d)" -gt 20260712 ]; then
+            echo "Second daily window ended 2026-07-12; skipping (remove the 16:00 cron to silence this)."
+            exit 0
+          fi
           ARGS=""
           if [ -n "${{ inputs.topic_override }}" ]; then ARGS="$ARGS --topic-override ${{ inputs.topic_override }}"; fi
           if [ -n "${{ inputs.duration_target }}" ]; then ARGS="$ARGS --duration-target ${{ inputs.duration_target }}"; fi

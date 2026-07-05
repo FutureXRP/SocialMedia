@@ -77,6 +77,20 @@ def test_feature_topic_requires_configured_url():
         content.gather_source_material(topic, SETTINGS)
 
 
+def test_exhausted_queue_recycles_stalest_evergreen_instead_of_failing():
+    # at 2 videos/day the queue outruns the 14-day rule; never miss a video
+    topics = {
+        "queue": [],
+        "used": [
+            {"type": "evergreen", "key": "dvp", "title": "DvP", "date": "2026-07-03"},
+            {"type": "evergreen", "key": "odl", "title": "ODL", "date": "2026-07-01"},
+            {"type": "post", "key": "old-post", "title": "x", "date": "2026-06-30"},
+        ],
+    }
+    topic = select_topic(topics, [], today=date(2026, 7, 5))
+    assert topic["key"] == "odl"  # stalest evergreen, despite 14-day rule
+
+
 def test_format_hint_steers_rotation():
     topic = {"type": "feature", "key": "terminal", "format_hint": "terminal_reading"}
     for probe in range(7):
