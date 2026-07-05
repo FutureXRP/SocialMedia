@@ -47,3 +47,18 @@ Tests: `python -m pytest tests/`. Fixture render: see Phase 1 command above.
   level, jargon banned unless immediately explained, one analogy per video.
 - **Look:** narrative text is DejaVu Sans; mono is reserved for chrome,
   numbers, and the URL. Rounded panels + dot grid replaced the crosshatch.
+
+## Source expansion (2026-07-05)
+
+Topic types: `post` (any article from `settings.feeds` — add Observatory /
+Field Notes / series feeds there as they get their own posts.json),
+`evergreen`, `feature` (terminal, calculator — URLs in `settings.features`),
+`external` (BIS/IMF/Fed/etc — MUST be on `settings.external_domains`
+allowlist; scriptwriter attributes by name and never implies endorsement).
+
+To queue an external article, add to `data/topics.json` queue:
+`{"type": "external", "key": "bis-agora-2026", "title": "...",
+  "url": "https://www.bis.org/..."}` — optional `"format_hint"` pins a
+format. Unfetchable topics are skipped (up to 4) instead of failing the run.
+NOTE: verify `settings.features` URLs match the live site paths — they were
+seeded as best guesses (/terminal, /calculator).

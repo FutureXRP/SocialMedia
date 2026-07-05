@@ -48,13 +48,17 @@ def pick_format(formats_cfg, topic, run_date, override=None, duration_target=Non
         if w > 0 and not (formats[k].get("requires_post") and topic["type"] != "post")
     }
     if duration_target:
-        # a requested duration outranks the rotation: only formats whose
+        # a requested duration outranks everything else: only formats whose
         # range contains it (a 60s request must never become a 265s video)
         fits = {k: w for k, w in eligible.items()
                 if formats[k]["duration_range"][0] <= duration_target
                 <= formats[k]["duration_range"][1]}
         if fits:
             eligible = fits
+    hint = (topic or {}).get("format_hint")
+    if hint in eligible:
+        # topic knows its natural format (terminal → terminal_reading)
+        eligible = {hint: eligible[hint]}
     rng = random.Random(run_date.toordinal())  # deterministic per day
     keys = list(eligible)
     return rng.choices(keys, weights=[eligible[k] for k in keys])[0]
@@ -108,10 +112,25 @@ def run_pipeline(args):
     else:
         posts = content.fetch_posts(settings)
         topics = content.load_topics()
-        topic = content.select_topic(topics, posts, override=args.topic_override)
-        print(f"[content] topic: {topic}")
-        source_text, source_url = content.gather_source_material(
-            topic, settings, max_words=settings.get("source_max_words", 2500))
+        # a dead link must not kill the nightly run: skip unfetchable
+        # topics (up to 4) and pick the next one
+        excluded = set()
+        while True:
+            topic = content.select_topic(topics, posts,
+                                         override=args.topic_override,
+                                         exclude=excluded)
+            print(f"[content] topic: {topic}")
+            try:
+                source_text, source_url, source_kind = content.gather_source_material(
+                    topic, settings,
+                    max_words=settings.get("source_max_words", 2500))
+                break
+            except Exception as e:
+                if args.topic_override or len(excluded) >= 4:
+                    raise
+                key = topic.get("slug") or topic.get("key")
+                excluded.add(key)
+                print(f"[content] fetch failed for {key!r} ({e}); trying next topic")
         canonical = content.load_canonical()
         format_key = pick_format(formats_cfg, topic, run_date,
                                  args.format_override, args.duration_target)
@@ -122,7 +141,8 @@ def run_pipeline(args):
         _set_stage("script")
         titles = deliver.recent_titles()
         script = generate_script(duration_target, format_key, source_text,
-                                 canonical, titles, settings)
+                                 canonical, titles, settings,
+                                 source_kind=source_kind)
         (OUTPUT_DIR / "script.json").write_text(json.dumps(script, indent=2))
 
         _set_stage("qa")
@@ -133,7 +153,8 @@ def run_pipeline(args):
             print(f"[qa] fail: {verdict['violations']} — one retry")
             script = generate_script(duration_target, format_key, source_text,
                                      canonical, titles, settings,
-                                     qa_feedback=verdict["violations"])
+                                     qa_feedback=verdict["violations"],
+                                     source_kind=source_kind)
             (OUTPUT_DIR / "script.json").write_text(json.dumps(script, indent=2))
             verdict = run_qa(script, source_text, canonical, settings,
                              duration_target=duration_target)

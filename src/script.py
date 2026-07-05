@@ -50,8 +50,28 @@ def parse_script_json(raw):
     return extract_json_object(raw)
 
 
+SOURCE_NOTES = {
+    "post": "The source is a published xrpvaluation.info article. Walk its "
+            "argument; do not extend it.",
+    "evergreen": "This is a concept explainer. Teach one idea from scratch "
+                 "using the canonical data; assume zero prior knowledge.",
+    "feature": "The source is a live page on xrpvaluation.info (the "
+               "Settlement Terminal or the calculator). Describe what the "
+               "tool shows and how a viewer can use it themselves — every "
+               "input is public and editable. Only speak numbers that appear "
+               "on the page or in canonical data.",
+    "external": "The source is a third-party institutional document (BIS, "
+                "IMF, central bank, market infrastructure). Attribute every "
+                "claim to the institution by name ('according to the BIS "
+                "...'). NEVER imply the institution endorses XRP or any "
+                "asset — connect their facts to the settlement thesis "
+                "yourself, and label that connection as the framework's "
+                "reading. Invite viewers to read the original document.",
+}
+
+
 def build_user_message(duration_target, format_key, source_text, canonical,
-                       recent_titles):
+                       recent_titles, source_kind="post"):
     word_budget = round(duration_target / 60 * 150)
     return (
         f"DURATION TARGET\n{duration_target} seconds. HARD LIMIT: total "
@@ -59,6 +79,7 @@ def build_user_message(duration_target, format_key, source_text, canonical,
         f"{round(word_budget * 1.1)} words (target ~{word_budget}). Scripts "
         f"outside this range are rejected.\n\n"
         f"FORMAT\n{format_key}\n\n"
+        f"SOURCE TYPE\n{SOURCE_NOTES.get(source_kind, SOURCE_NOTES['post'])}\n\n"
         f"SOURCE MATERIAL\n{source_text}\n\n"
         f"CANONICAL DATA\n{json.dumps(canonical, indent=2)}\n\n"
         f"RECENT VIDEO TITLES\n" + ("\n".join(recent_titles) if recent_titles else "(none)")
@@ -66,13 +87,14 @@ def build_user_message(duration_target, format_key, source_text, canonical,
 
 
 def generate_script(duration_target, format_key, source_text, canonical,
-                    recent_titles, settings, qa_feedback=None):
+                    recent_titles, settings, qa_feedback=None,
+                    source_kind="post"):
     """Call the scriptwriter model; returns the parsed, sanitized script."""
     import anthropic
 
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
     user_message = build_user_message(duration_target, format_key, source_text,
-                                      canonical, recent_titles)
+                                      canonical, recent_titles, source_kind)
     if qa_feedback:
         user_message += (
             "\n\nQA VIOLATIONS FROM PREVIOUS ATTEMPT (fix every one)\n"

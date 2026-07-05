@@ -1,6 +1,18 @@
 {
   "queue": [
     {
+      "type": "feature",
+      "key": "terminal",
+      "title": "What the Settlement Terminal shows this week",
+      "format_hint": "terminal_reading"
+    },
+    {
+      "type": "feature",
+      "key": "calculator",
+      "title": "The $589 calculator, input by input",
+      "format_hint": "one_chart_one_claim"
+    },
+    {
       "type": "evergreen",
       "key": "dvp",
       "title": "Delivery versus Payment (DvP)"

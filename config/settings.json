@@ -13,5 +13,17 @@
   "jpeg_quality": 92,
   "site": "xrpvaluation.info",
   "posts_json_url": "https://xrpvaluation.info/blog/posts.json",
-  "post_url_pattern": "https://xrpvaluation.info/blog/{slug}"
+  "post_url_pattern": "https://xrpvaluation.info/blog/{slug}",
+  "feeds": [
+    "https://xrpvaluation.info/blog/posts.json"
+  ],
+  "features": {
+    "terminal": "https://xrpvaluation.info/terminal",
+    "calculator": "https://xrpvaluation.info/calculator"
+  },
+  "external_domains": [
+    "bis.org", "imf.org", "federalreserve.gov", "frbservices.org",
+    "ecb.europa.eu", "bankofengland.co.uk", "dtcc.com", "swift.com",
+    "iso20022.org", "ripple.com"
+  ]
 }
