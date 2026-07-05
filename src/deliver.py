@@ -26,11 +26,24 @@ def _gh_headers():
     }
 
 
+def _free_tag(repo, base):
+    """First unused tag: video-DATE, then video-DATE-2, -3 ... (two builds
+    per day must not collide)."""
+    tag, n = base, 1
+    while True:
+        r = requests.get(f"{GITHUB_API}/repos/{repo}/releases/tags/{tag}",
+                         headers=_gh_headers(), timeout=30)
+        if r.status_code == 404:
+            return tag
+        n += 1
+        tag = f"{base}-{n}"
+
+
 def create_release(run_date, mp4_path, caption_path, script, format_key,
                    source_url, duration):
-    """Create GitHub Release video-YYYY-MM-DD and attach MP4 + caption txt."""
+    """Create GitHub Release video-YYYY-MM-DD[-N] and attach MP4 + caption."""
     repo = os.environ["GITHUB_REPOSITORY"]
-    tag = f"video-{run_date.isoformat()}"
+    tag = _free_tag(repo, f"video-{run_date.isoformat()}")
     body = (
         f"**Hook:** {script.get('hook', '')}\n\n"
         f"**Duration:** {duration:.0f}s\n"
@@ -108,6 +121,10 @@ def write_history(run_date, topic, format_key, script, qa_verdicts, durations,
         "render_seconds": round(render_seconds, 1),
     }
     path = HISTORY_DIR / f"{run_date.isoformat()}.json"
+    n = 1
+    while path.exists():  # second build of the day must not overwrite the first
+        n += 1
+        path = HISTORY_DIR / f"{run_date.isoformat()}-{n}.json"
     path.write_text(json.dumps(record, indent=2) + "\n")
     return str(path)
 
